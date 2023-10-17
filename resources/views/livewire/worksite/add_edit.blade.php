@@ -137,7 +137,7 @@
 							<div class="absolute inset-y-0 left-0 pl-2.5 sm:flex hidden items-center pointer-events-none text-secondary-400">
 								<x-icon name="document-text" class="w-5 h-5" />
 							</div>
-							<textarea wire:model="description" id="description" placeholder="{{ __('worksite.placeholder_description') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-textarea block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm sm:pl-8 pl-2"></textarea>
+							<textarea required wire:model="description" id="description" placeholder="{{ __('worksite.placeholder_description') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-textarea block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm sm:pl-8 pl-2"></textarea>
 						</div>
 						@error('description') <span class="error">{{ $message }}</span> @enderror
 					</div>
