@@ -45,9 +45,9 @@ new class extends Component
                         <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
                             {{ __('navigation.users') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
+                        {{--<x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
                             {{ __('navigation.reports') }}
-                        </x-nav-link>
+                        </x-nav-link>--}}
                     @endif
 
                     @if (auth()->user()->role === \App\Enums\UserRoleEnum::RESPONSIBLE->value)
@@ -154,9 +154,9 @@ new class extends Component
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
                     {{ __('navigation.users') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
+                {{--<x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
                     {{ __('navigation.reports') }}
-                </x-responsive-nav-link>
+                </x-responsive-nav-link>--}}
             @endif
 
             @if (auth()->user()->role === \App\Enums\UserRoleEnum::RESPONSIBLE->value)
