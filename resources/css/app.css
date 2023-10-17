@@ -1,3 +1,16 @@
+@import "flatpickr/dist/flatpickr.min.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.responsive-row-expand-item-container {
+    width: 100%;
+}
+
+.z-999 {
+    z-index: 999;
+}
+
+.z-50 {
+    z-index: 50;
+}

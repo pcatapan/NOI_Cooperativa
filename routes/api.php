@@ -14,6 +14,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+/**
+ * Serach for select
+ */
+Route::get('/company', [App\Http\Controllers\CompanyController::class, '__index'])->name('api.companies');
+Route::get('/responsable', [App\Http\Controllers\UserController::class, '__indexResponsible'])->name('api.responsible');
+Route::get('/employee', [App\Http\Controllers\UserController::class, '__indexEmployee'])->name('api.employee');
+Route::get('/employee/{responsable}', [App\Http\Controllers\UserController::class, '__indexEmployeeByResponsable'])->name('api.employee_by_responsable');
+Route::get('/worksite', [App\Http\Controllers\WorksiteController::class, '__index'])->name('api.worksite');
+Route::get('/worksite/{responsable}', [App\Http\Controllers\WorksiteController::class, '__indexByResponsable'])->name('api.worksite_by_responsable');
+
+Route::middleware('auth')->group(function () {
+
+    /**
+     * Company
+     */
 });

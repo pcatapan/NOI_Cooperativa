@@ -22,6 +22,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'surname',
+        'date_birth',
+        'id_company',
         'email',
         'role',
         'password',
@@ -46,4 +48,39 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Relationship
+     */
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'id_user');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'id_company');
+    }
+
+    public function presences()
+    {
+        return $this->hasMany(Presence::class, 'id_user');
+    }
+
+    /**
+     * Override delete method
+     */
+    public function delete()
+    {
+        $this->employee?->delete();
+        return parent::delete();
+    }
+
+    /**
+     * Scope
+     */
+    public function getEmployeeId()
+    {
+        return Employee::where('id_user', $this->id)->first()->id;
+    }
 }

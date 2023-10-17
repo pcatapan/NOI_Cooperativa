@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('worksites', function (Blueprint $table) {
             $table->id();
             $table->longText('description');
-            $table->unsignedBigInteger('cod');
+            $table->string('cod');
             $table->string('address')->nullable()->default(null);
             $table->string('city')->nullable()->default(null);
             $table->string('zip_code')->nullable()->default(null);
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->longText('notes')->nullable()->default(null);
             $table->timestamps();
 
-            $table->foreign('id_responsable')->references('id')->on('users');
+            $table->foreign('id_responsable')->references('id')->on('employees');
         });
     }
 

@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Services\EmployeeServices;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use App\Enums\UserRoleEnum;
 use App\Http\Requests\UserStoreRequest;
+use App\Models\Company;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -19,6 +23,8 @@ class UserController extends Controller
         $user->email = $request->input('email');
         $user->password = Hash::make($request->input('password'));
         $user->role = $request->input('role');
+		$user->date_birth = Carbon::parse($request->input('date_birth'));
+		$user->id_company = $request->input('company');
 
         $user->save();
 		
@@ -40,6 +46,8 @@ class UserController extends Controller
 			$employee->active = true;
 
 			$employee->save();
+
+			return redirect()->route('employees.index');
 		}
 
 		return redirect()->route('users.index');
@@ -47,6 +55,91 @@ class UserController extends Controller
 
 	public function create()
 	{
-		return view('livewire.employee.create');
+		$companySelect = Company::all()->pluck('name', 'id');
+
+		return view('livewire.employee.create', compact('companySelect'));
+	}
+
+	public function __indexResponsible(Request $request)
+	{
+		return User::join('employees', 'users.id', 'employees.id_user')
+			->select('users.*', 'employees.id as id_employee')
+			->where('role', UserRoleEnum::RESPONSIBLE->value)
+			->when(
+				$request->search,
+				fn (Builder $query) => $query
+					->where('name', 'like', "%{$request->search}%")
+					->orWhere('surname', 'like', "%{$request->search}%")
+			)
+			->when(
+				$request->exists('selected'),
+				fn (Builder $query) => $query->whereIn('employees.id', $request->input('selected', [])),
+				fn (Builder $query) => $query->limit(10)
+			)
+			->get()
+			->map(function ($user) {
+				return [
+					'id' => $user->id_employee,
+					'name' => $user->name . ' ' . $user->surname,
+				];
+			})
+			->filter()
+		;
+	}
+	
+	public function __indexEmployee(Request $request) {
+		return User::join('employees', 'users.id', 'employees.id_user')
+			->select('users.*', 'employees.id as id_employee')
+			->where('role', UserRoleEnum::EMPLOYEE->value)
+			->when(
+				$request->search,
+				fn (Builder $query) => $query
+					->where('name', 'like', "%{$request->search}%")
+					->orWhere('surname', 'like', "%{$request->search}%")
+			)
+			->when(
+				$request->exists('selected'),
+				fn (Builder $query) => $query->whereIn('employees.id', $request->input('selected', [])),
+				fn (Builder $query) => $query->limit(10)
+			)
+			->get()
+			->map(function ($user) {
+				return [
+					'id' => $user->id_employee,
+					'name' => $user->name . ' ' . $user->surname,
+				];
+			})
+			->filter()
+		;
+	}
+	
+	public function __indexEmployeeByResponsable(Request $request, User $responsable)
+	{
+		return Employee::whereHas('worksites', function (Builder $query) use ($responsable) {
+			$query->where('id_responsable', $responsable->employee->id);
+			})
+			->select('employees.*', 'users.name', 'users.surname')
+			->join('users', 'employees.id_user', 'users.id')
+			->where('role', UserRoleEnum::EMPLOYEE->value)
+			->when(
+				$request->search,
+				fn (Builder $query) => $query
+					->where('name', 'like', "%{$request->search}%")
+					->orWhere('surname', 'like', "%{$request->search}%")
+			)
+			->when(
+				$request->exists('selected'),
+				fn (Builder $query) => $query->whereIn('employees.id', $request->input('selected', [])),
+				fn (Builder $query) => $query->limit(10)
+			)
+			->get()
+			->map(function ($user) {
+				return [
+					'id' => $user->id,
+					'name' => $user->name . ' ' . $user->surname,
+				];
+			})
+			->filter()
+		;
 	}
 }

@@ -12,6 +12,9 @@ class Employee extends Model
     protected $fillable = [
         'id_user',
         'number_serial',
+        'iban',
+        'work_hour_week_by_contract',
+        'permission_hour_week_by_contract',
         'fiscal_code',
         'inps_number',
         'address',
@@ -42,6 +45,30 @@ class Employee extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function worksites()
+    {
+        return $this->belongsToMany(Worksite::class, 'employee_worksites', 'id_employee', 'id_worksite');
+    }
+
+    public function worksitesAsResponsible()
+    {
+        return $this->hasMany(Worksite::class, 'id_responsable');
+    }
+
+    public function shifts()
+    {
+        return $this->hasMany(Shift::class, 'id_employee');
+    }
+
+    /**
+     * Override delete method
+     */
+    public function delete()
+    {
+        parent::delete();
+        return $this->user->delete();
     }
 
 

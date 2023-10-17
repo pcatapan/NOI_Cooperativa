@@ -30,18 +30,38 @@ new class extends Component
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
+                        {{ __('general.dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
-                        {{ __('navigation.employees') }}
-                    </x-nav-link>
+                    @if (auth()->user()->role === \App\Enums\UserRoleEnum::ADMIN->value)  
+                        <x-nav-link :href="route('companies.index')" :active="request()->routeIs('companies.index')" wire:navigate>
+                            {{ __('navigation.companies') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('worksites.index')" :active="request()->routeIs('worksites.index')" wire:navigate>
+                            {{ __('navigation.worksites') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.index')" wire:navigate>
+                            {{ __('navigation.employees') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
+                            {{ __('navigation.users') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
+                            {{ __('navigation.reports') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if (auth()->user()->role === \App\Enums\UserRoleEnum::RESPONSIBLE->value)
+                        <x-nav-link :href="route('shifts.index')" :active="request()->routeIs('shifts.index')" wire:navigate>
+                           {{ __('navigation.shifts') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
             <div class="flex gap-3">
                 <!-- Settings Dropdown -->
                 <div class="hidden sm:flex sm:items-center sm:ml-6">
-                    <x-dropdown align="right" width="48">
+                    <x-dropdown-user align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                                 <div x-data="{ name: '{{ auth()->user()->name }}' }" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
@@ -66,11 +86,11 @@ new class extends Component
                                 </x-dropdown-link>
                             </button>
                         </x-slot>
-                    </x-dropdown>
+                    </x-dropdown-user>
                 </div>
 
                 {{--Dark mode toggle--}}
-                <div class="sm:flex sm:items-center">
+                <div class="flex sm:items-center justify-center flex-col">
                     <button type="button" x-bind:class="darkMode ? 'bg-indigo-500' : 'bg-gray-200'"
                         x-on:click="darkMode = !darkMode"
                         class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -119,8 +139,31 @@ new class extends Component
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                {{ __('Dashboard') }}
+                {{ __('general.dashboard') }}
             </x-responsive-nav-link>
+            @if (auth()->user()->role === \App\Enums\UserRoleEnum::ADMIN->value)
+                <x-responsive-nav-link :href="route('companies.index')" :active="request()->routeIs('companies.index')" wire:navigate>
+                    {{ __('navigation.companies') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('worksites.index')" :active="request()->routeIs('worksites.index')" wire:navigate>
+                    {{ __('navigation.worksites') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.index')" wire:navigate>
+                    {{ __('navigation.employees') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
+                    {{ __('navigation.users') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
+                    {{ __('navigation.reports') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (auth()->user()->role === \App\Enums\UserRoleEnum::RESPONSIBLE->value)
+                <x-responsive-nav-link :href="route('shifts.index')" :active="request()->routeIs('shifts.index')" wire:navigate>
+                    {{ __('navigation.shifts') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

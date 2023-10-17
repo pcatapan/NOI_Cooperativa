@@ -12,14 +12,11 @@
 					<form action="{{ route('user.store') }}" method="POST" class="flex flex-col gap-8" x-data="{ passwordStr:'', passwordConfirmStr:'' }">
 						@csrf
 						<x-errors />
-						
-						{{-- Ruolo --}}
-						<input type="hidden" name="role" value="employee">
 
-						{{-- Nome, Cognome e Mansione --}}
+						{{-- Nome, Cognome e Ruolo --}}
 						<div class="w-full flex flex-row gap-9">
 							<div class="w-1/3">
-								<label for="name" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.name')) }}</label>
+								<label for="name" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.name')) }}</label>
 								<div class="relative rounded-md  shadow-sm ">
 									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
 										<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,7 +27,7 @@
 								</div>
 							</div>
 							<div class="w-1/3">
-								<label for="surname" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.surname')) }}</label>
+								<label for="surname" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.surname')) }}</label>
 								<div class="relative rounded-md  shadow-sm ">
 									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
 										<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,20 +38,23 @@
 								</div>
 							</div>
 							<div class="w-1/3">
-								<label for="job" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.job')) }}</label>
-								<div class="relative rounded-md  shadow-sm ">
-									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
-										<x-icon name="briefcase" class="w-5 h-5" />
-									</div>
-									<input required type="text" name="job" id="job" placeholder="{{ __('employee.placeholder_job') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-input block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm pl-8">
-								</div>
+								<x-native-select
+									label="{{ \Str::ucfirst(__('employee.role')) }}"
+									:options="[
+										['name' => 'Dipendente', 'id' => 'employee'],
+										['name' => 'Responsabile', 'id' => 'responsible'],
+									]"
+									option-label="name"
+									option-value="id"
+									name="role"
+								/>
 							</div>
 						</div>
 
-						{{-- Email, Numero di Telefono e data Assunzione --}}
+						{{-- Email, Numero di Telefono e Data di nascita --}}
 						<div class="w-full flex flex-row gap-9">
 							<div class="w-1/3">
-								<label for="email" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.email')) }}</label>
+								<label for="email" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.email')) }}</label>
 								<div class="relative rounded-md  shadow-sm ">
 									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
 										<x-icon name="at-symbol" class="w-5 h-5" />
@@ -63,7 +63,7 @@
 								</div>
 							</div>
 							<div class="w-1/3">
-								<label for="phone" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.phone')) }}</label>
+								<label for="phone" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.phone')) }}</label>
 								<div class="relative rounded-md  shadow-sm ">
 									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
 										<x-icon name="phone" class="w-5 h-5" />
@@ -72,14 +72,47 @@
 								</div>
 							</div>
 							<div class="w-1/3">
+								<x-datetime-picker
+									label="{{ \Str::ucfirst(__('employee.birth_date')) }}"
+									placeholder=""
+									parse-format="DD-MM-YYYY"
+									name="birth_date"
+									without-time="true"
+								/>
+							</div>
+						</div>
+
+						{{-- Job, Data di Assunzione e Azienda --}}
+						<div class="w-full flex flex-row gap-9">
+							<div class="w-1/3">
+								<label for="job" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.job')) }}</label>
 								<div class="relative rounded-md  shadow-sm ">
-									<x-datetime-picker
-										label="{{ \Str::ucfirst(__('employee.hiring_date')) }}"
-										placeholder="{{ __('employee.placeholder_hiring_date') }}"
-										parse-format="DD-MM-YYYY"
-										name="hiring_date"
-									/>
+									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
+										<x-icon name="briefcase" class="w-5 h-5" />
+									</div>
+									<input required type="text" name="job" id="job" placeholder="{{ __('employee.placeholder_job') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-input block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm pl-8">
 								</div>
+							</div>
+							<div class="w-1/3">
+								<x-datetime-picker
+									label="{{ \Str::ucfirst(__('employee.hiring_date')) }}"
+									placeholder=""
+									parse-format="DD-MM-YYYY"
+									name="hiring_date"
+									class="mb-2"
+									without-time="true"
+								/>
+							</div>
+							<div class="w-1/3 relative">
+								<x-icon name="plus-circle" class="w-5 h-5 absolute right-0 text-white z-999 cursor-pointer" id="create_company" onclick="openModalCreateCompany()"/>
+								<x-select
+									label="{{ \Str::ucfirst(__('employee.company')) }}"
+									placeholder="{{ __('employee.placeholder_company') }}"
+									name="company">
+									@foreach($companySelect as $company)
+										<x-select.option label="{{ $company->name }}" value="{{ $company->id }}" />
+									@endforeach
+								</x-select>
 							</div>
 						</div>
 
@@ -104,12 +137,12 @@
 								</div>
 							</div>
 							<div class="w-1/3">
-								<label for="inpu_number" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.inpu_number')) }}</label>
+								<label for="inps_number" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.inps_number')) }}</label>
 								<div class="relative rounded-md  shadow-sm ">
 									<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
 										<x-icon name="credit-card" class="w-5 h-5" />
 									</div>
-									<input type="text" name="inpu_number" id="inpu_number" placeholder="{{ __('employee.placeholder_inpu_number') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-input block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm pl-8">
+									<input type="text" name="inps_number" id="inps_number" placeholder="{{ __('employee.placeholder_inps_number') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-input block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm pl-8">
 								</div>
 							</div>
 						</div>

@@ -17,9 +17,10 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridColumns;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-
 use PowerComponents\LivewirePowerGrid\Responsive;
+use Illuminate\Support\Str;
 
 final class UserTable extends PowerGridComponent
 {
@@ -29,23 +30,26 @@ final class UserTable extends PowerGridComponent
     #[On('create')]
     public function create(): void
     {
-        redirect()->route('employee.create');
+        redirect()->route('user.add_edit');
     }
 
     public function setUp(): array
     {
+        if (Auth::user()->role !== UserRoleEnum::ADMIN->value) {
+			abort(403, __('general.403'));
+		}
+
         //$this->showCheckBox();
         $this->persist(['columns', 'filters']);
 
-
         return [
-            Responsive::make(),
-
             Exportable::make('export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             
-                Header::make()->showSearchInput(),
+            Header::make()
+                ->showSearchInput()
+                ->showToggleColumns(),
             
             Footer::make()
                 ->showPerPage()
@@ -57,7 +61,7 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Button::add('create')
-                ->slot(__('employee.create'))
+                ->slot(__('user.create'))
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('create', []),
 
@@ -77,75 +81,85 @@ final class UserTable extends PowerGridComponent
     public function addColumns(): PowerGridColumns
     {
         return PowerGrid::columns()
-            ->addColumn('name', function (User $user) {
-                return $user->name.' '.$user->surname;
-            })
+            ->addColumn('name')
+            ->addColumn('surname')
             ->addColumn('email')
             ->addColumn('role', function (User $user) {
                 return \App\Enums\UserRoleEnum::from($user->role)->labels();
-            })
-            ->addColumn('created_at_formatted', fn (User $model) => Carbon::parse($model->created_at)->format('d/m/Y H:i'));
+            });
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Name', 'name')
+            Column::action(__('general.action')),
+
+            Column::make(Str::ucfirst(__('user.name')), 'name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Email', 'email')
+            Column::make(Str::ucfirst(__('user.surname')), 'surname')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Role', 'role')
+            Column::make(Str::ucfirst(__('user.email')), 'email')
+                ->sortable()
                 ->searchable(),
 
-
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-
-            Column::action('Action')
+            Column::make(Str::ucfirst(__('user.role')), 'role'),
         ];
     }
 
     public function filters(): array
     {
         return [
-            Filter::inputText('name')->operators(['contains']),
-            Filter::inputText('email')->operators(['contains']),
-            Filter::enumSelect('role', 'role')
-                ->dataSource(UserRoleEnum::cases())
-                ->optionLabel('users.role'),
+            Filter::select('role')
+                ->dataSource([
+                    ['label' => UserRoleEnum::from(UserRoleEnum::ADMIN->value)->labels(), 'value' => UserRoleEnum::ADMIN->value],
+                    ['label' => UserRoleEnum::from(UserRoleEnum::RESPONSIBLE->value)->labels(), 'value' => UserRoleEnum::RESPONSIBLE->value],
+                    ['label' => UserRoleEnum::from(UserRoleEnum::EMPLOYEE->value)->labels(), 'value' => UserRoleEnum::EMPLOYEE->value],
+                ])
+                ->optionValue('value')
+                ->optionLabel('label'),
         ];
     }
 
     #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert('.$rowId.')');
-    }
-
+	public function edit($user): void
+	{
+        redirect()->route('user.add_edit', ['user' => $user]);
+	}
     public function actions(\App\Models\User $row): array
     {
         return [
-            //Button::add('edit')
-            //    ->slot('Edit: '.$row->id)
-            //    ->id()
-            //    ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-            //    ->dispatch('edit', ['rowId' => $row->id])
+            Button::add('delete')
+				->slot(Str::ucfirst(__('general.delete')))
+				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-red-600 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-red-700')
+				->openModal('delete-modal', [
+					'confirmationTitle'       => __('general.delete_confirmation_title'),
+                    'confirmationDescription' => __('general.delete_confirmation_description'),
+                    'id'                  => $row->id,
+					'ids'					=> [],
+					'class'					=> User::class,
+                ]),
+
+            Button::add('edit')
+                ->slot(Str::ucfirst(__('general.edit')))
+                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->dispatch('edit', ['user' => $row->id]),
         ];
     }
 
-    /*
     public function actionRules($row): array
     {
        return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+        Rule::button('delete')
+			->when(fn () => Auth::user()->role !== UserRoleEnum::ADMIN->value)
+			->hide(),
+
+        Rule::button('edit')
+            ->when(fn () => $row->role !== UserRoleEnum::ADMIN->value)
+            ->hide(),
         ];
     }
-    */
 }

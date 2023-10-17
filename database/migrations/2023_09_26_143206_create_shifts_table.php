@@ -15,12 +15,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_employee');
             $table->unsignedBigInteger('id_worksite');
-            $table->dateTime('start');
-            $table->dateTime('end');
+            $table->date('date');
+            $table->time('start');
+            $table->time('end');
+            $table->boolean('is_extraordinary')->default(false);
             $table->boolean('validated')->default(false);
+            $table->longText('note')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_employee')->references('id')->on('users');
+            $table->foreign('id_employee')->references('id')->on('employees');
             $table->foreign('id_worksite')->references('id')->on('worksites');
         });
     }
