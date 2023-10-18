@@ -14,7 +14,7 @@ class Employee extends Model
         'number_serial',
         'iban',
         'work_hour_week_by_contract',
-        'permission_hour_week_by_contract',
+        'permission_hour_by_contract',
         'fiscal_code',
         'inps_number',
         'address',

@@ -127,7 +127,7 @@
 						</div>
 					</div>
 
-					{{-- Iban, Monte Ore settimanale e Permessi Settimanali --}}
+					{{-- Matricola, Codice Fiscale e Codice Inps --}}
 					<div class="w-full flex flex-row gap-9">
 						<div class="w-1/3">
 							<label for="number_serial" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.number_serial')) }}</label>
@@ -184,14 +184,14 @@
 							@error('work_hour_week_by_contract') <span class="error">{{ $message }}</span> @enderror
 						</div>
 						<div class="w-1/3">
-							<label for="permission_hour_week_by_contract" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.permission_hour_week_by_contract')) }}</label>
+							<label for="permission_hour_by_contract" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.permission_hour_by_contract')) }}</label>
 							<div class="relative rounded-md  shadow-sm ">
 								<div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-secondary-400">
 									<x-icon name="clock" class="w-5 h-5" />
 								</div>
-								<input type="number" wire:model="permission_hour_week_by_contract" id="permission_hour_week_by_contract" placeholder="{{ __('employee.placeholder_permission_hour_week_by_contract') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-input block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm pl-8">
+								<input type="number" wire:model="permission_hour_by_contract" id="permission_hour_by_contract" placeholder="{{ __('employee.placeholder_permission_hour_by_contract') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-input block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm pl-8">
 							</div>
-							@error('permission_hour_week_by_contract') <span class="error">{{ $message }}</span> @enderror
+							@error('permission_hour_by_contract') <span class="error">{{ $message }}</span> @enderror
 						</div>
 					</div>
 

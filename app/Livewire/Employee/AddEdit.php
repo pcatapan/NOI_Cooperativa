@@ -29,7 +29,7 @@ class AddEdit extends Component
 	public ?string $number_serial = null;
 	public ?string $iban = null;
 	public ?int $work_hour_week_by_contract = null;
-	public ?int $permission_hour_week_by_contract = null;
+	public ?int $permission_hour_by_contract = null;
 	public ?string $phone = null;
 	public ?string $inps_number = null;
 	public ?string $address = null;
@@ -72,7 +72,7 @@ class AddEdit extends Component
             'number_serial' => 'string|max:100|nullable',
 			'iban' => 'string|max:27|nullable',
 			'work_hour_week_by_contract' => 'integer|nullable',
-			'permission_hour_week_by_contract' => 'integer|nullable',
+			'permission_hour_by_contract' => 'integer|nullable',
             'phone' => 'string|max:12|nullable',
 			'company' => 'nullable|integer|exists:companies,id',
             'inps_number' => 'string|max:50|nullable',
@@ -113,7 +113,7 @@ class AddEdit extends Component
 			$this->number_serial = $employee->number_serial;
 			$this->iban = $employee->iban;
 			$this->work_hour_week_by_contract = $employee->work_hour_week_by_contract;
-			$this->permission_hour_week_by_contract = $employee->permission_hour_week_by_contract;
+			$this->permission_hour_by_contract = $employee->permission_hour_by_contract;
 			$this->inps_number = $employee->inps_number;
 			$this->address = $employee->address;
 			$this->city = $employee->city;
@@ -156,7 +156,7 @@ class AddEdit extends Component
 			$this->employee->number_serial = $this->number_serial;
 			$this->employee->iban = $this->iban;
 			$this->employee->work_hour_week_by_contract = $this->work_hour_week_by_contract;
-			$this->employee->permission_hour_week_by_contract = $this->permission_hour_week_by_contract;
+			$this->employee->permission_hour_by_contract = $this->permission_hour_by_contract;
 			$this->employee->fiscal_code = $this->fiscal_code;
 			$this->employee->inps_number = $this->inps_number;
 			$this->employee->address = $this->address;
@@ -185,7 +185,7 @@ class AddEdit extends Component
 			$employee->number_serial = $this->number_serial;
 			$employee->iban = $this->iban;
 			$employee->work_hour_week_by_contract = $this->work_hour_week_by_contract;
-			$employee->permission_hour_week_by_contract = $this->permission_hour_week_by_contract;
+			$employee->permission_hour_by_contract = $this->permission_hour_by_contract;
 			$employee->fiscal_code = $this->fiscal_code;
 			$employee->inps_number = $this->inps_number;
 			$employee->address = $this->address;

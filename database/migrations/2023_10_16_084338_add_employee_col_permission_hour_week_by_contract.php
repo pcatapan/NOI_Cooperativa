@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->unsignedBigInteger('permission_hour_week_by_contract')->nullable()->after('work_hour_week_by_contract');
+            $table->unsignedBigInteger('permission_hour_by_contract')->nullable()->after('work_hour_week_by_contract');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->dropColumn(['permission_hour_week_by_contract']);
+            $table->dropColumn(['permission_hour_by_contract']);
         });
     }
 };

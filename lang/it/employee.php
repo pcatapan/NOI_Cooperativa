@@ -24,7 +24,7 @@ return [
 	'placeholder_iban' => 'IT00A0000000000000000000000',
 	'work_hour_week_by_contract' => 'ore settimanali contratto',
 	'placeholder_work_hour_week_by_contract' => '40',
-	'permission_hour_week_by_contract' => 'ore permesso settimanali contratto',
+	'permission_hour_by_contract' => 'ore permesso da contratto',
 	'placeholder_permission_hour_week_by_contract' => '2',
 	'address' => 'indirizzo',
 	'placeholder_address' => 'Via Roma, 1',

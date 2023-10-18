@@ -80,7 +80,7 @@ class AddEdit extends Component
 	{
 		$this->validate();
 
-		Worksite::updateOrCreate(['id' => $this->worksite->id ?? null], [
+		$this->worksite = Worksite::updateOrCreate(['id' => $this->worksite->id ?? null], [
 			'cod' => $this->cod,
 			'description' => $this->description,
 			'address' => $this->address,

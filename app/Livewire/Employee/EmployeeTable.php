@@ -88,7 +88,7 @@ final class EmployeeTable extends PowerGridComponent
 	public function relationSearch(): array
 	{
 		return [
-			'users' => [
+			'user' => [
 				'surname',
 				'companies.name',
 				'role'
