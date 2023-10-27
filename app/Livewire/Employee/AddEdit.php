@@ -40,7 +40,7 @@ class AddEdit extends Component
 	public ?string $job = null;
 	public $role = null;
 	public $company = null;
-	public $date_of_hiring = "";
+	public ?string $date_of_hiring = null;
 	public $date_of_resignation = "";
 	public $active = null;
 
@@ -181,7 +181,7 @@ class AddEdit extends Component
 			$employee->id_user = $user->id;
 			$employee->phone = $this->phone;
 			$employee->job = $this->job;
-			$employee->date_of_hiring = $this->date_of_hiring ?? null;
+			$employee->date_of_hiring = $this->date_of_hiring ?? Carbon::now();
 			$employee->number_serial = $this->number_serial;
 			$employee->iban = $this->iban;
 			$employee->work_hour_week_by_contract = $this->work_hour_week_by_contract;

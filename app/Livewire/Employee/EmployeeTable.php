@@ -63,7 +63,6 @@ final class EmployeeTable extends PowerGridComponent
                 ->slot(Str::ucfirst(__('employee.employee_create')))
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('create', []),
-
         ];
     }
 
@@ -127,6 +126,9 @@ final class EmployeeTable extends PowerGridComponent
 		return [
 			Column::action(__('general.action')),
 
+			Column::make(__('employee.active'), 'active')
+				->toggleable(),
+
 			Column::make(__('employee.surname'), 'surname', 'users.surname')
 				->sortable()
 				->searchable(),
@@ -179,9 +181,6 @@ final class EmployeeTable extends PowerGridComponent
 			Column::make(__('employee.job'), 'job')
 				->sortable()
 				->searchable(),
-
-			Column::make(__('employee.active'), 'active')
-				->toggleable(),
 		];
 	}
 
@@ -194,6 +193,13 @@ final class EmployeeTable extends PowerGridComponent
 			Filter::datepicker('date_of_resignation'),
 			Filter::boolean('active')->label(__('general.yes'), __('general.no')),
 		];
+	}
+
+	public function onUpdatedToggleable(string $id, string $field, string $value): void
+	{
+		Employee::query()->find($id)->update([
+			$field => $value,
+		]);
 	}
 
 	#[\Livewire\Attributes\On('edit')]

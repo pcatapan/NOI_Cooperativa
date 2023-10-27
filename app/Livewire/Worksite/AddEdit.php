@@ -64,8 +64,8 @@ class AddEdit extends Component
 			'zip_code' => 'string|max:10|nullable',
 			'id_responsable' => 'required|integer|exists:employees,id',
 			'id_company' => 'required|integer|exists:companies,id',
-			'total_hours' => 'nullable|decimal:2|min:0',
-			'total_hours_extraordinary' => 'nullable|decimal:2|min:0',
+			'total_hours' => 'nullable|integer|min:0',
+			'total_hours_extraordinary' => 'nullable|integer|min:0',
 			'notes' => 'string|max:255|nullable',
 		];
 

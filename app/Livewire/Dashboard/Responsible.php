@@ -4,11 +4,9 @@ namespace App\Livewire\Dashboard;
 
 use Livewire\Component;
 use App\Models\Shift;
-use App\Enums\UserRoleEnum;
-use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
+
 
 class Responsible extends Component
 {
@@ -105,6 +103,11 @@ class Responsible extends Component
 
 	protected function showSuccessNotification()
 	{
-		session()->flash('message', __('general.save_success_title'));
+		$this->notification([
+			'title'       => Str::ucfirst(__('general.save_error_title')),
+			'icon'        => 'error',
+			'timeout'     => 2000,
+			'closeButton' => false,
+		]);
 	}
 }

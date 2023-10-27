@@ -4,6 +4,7 @@ namespace App\Livewire\Report;
 
 use App\Models\Presence;
 use Illuminate\Support\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
 use Illuminate\Support\Str;
 
-final class ReportTable extends PowerGridComponent
+final class ReportPresencesTable extends PowerGridComponent
 {
     use WithExport;
 
@@ -55,7 +56,8 @@ final class ReportTable extends PowerGridComponent
     {
         // Faccio la sommo di tutte le presenza di un determinato mese
         return Presence::query()
-            ->leftjoin('users', 'presences.id_user', '=', 'users.id')
+            ->leftjoin('employees', 'presences.id_employee', '=', 'employees.id')
+            ->leftjoin('users', 'employees.id_user', '=', 'users.id')
             ->leftjoin('worksites', 'presences.id_worksite', '=', 'worksites.id')
             ->leftjoin('companies', 'worksites.id_company', '=', 'companies.id')
             ->select(
@@ -66,7 +68,8 @@ final class ReportTable extends PowerGridComponent
                 DB::raw('SUM(hours_worked) as total_hours_worked'),
                 DB::raw('SUM(hours_extraordinary) as total_hours_extraordinary')
             )
-            ->groupBy('presences.id_user', 'presences.date')
+            ->groupBy('presences.id_employee', 'presences.date')
+            ->where('absent', false)
             ->orderBy('date', 'desc');
     }
 
@@ -79,7 +82,7 @@ final class ReportTable extends PowerGridComponent
     {
         return PowerGrid::columns()
             ->addColumn('user_surname', function (Presence $model) {
-                return e($model->user->surname);
+                return e($model->employee->user->surname);
             })
             ->addColumn('company' , function (Presence $model) {
 				return e($model->worksite->company->name);
@@ -91,14 +94,11 @@ final class ReportTable extends PowerGridComponent
                 return e(Carbon::parse($model->date)->format('d/m/Y'));
             })
             ->addColumn('total_hours_worked', function (Presence $model) {
-                return e($model->total_hours_worked);
+                $interval = CarbonInterval::minutes($model->total_hours_worked);
+                return $interval->cascade()->forHumans();
             })
-            ->addColumn('total_hours_extraordinary', function (Presence $model) {
-                return e($model->total_hours_extraordinary);
-            })
-            ->addColumn('action', function (Presence $model) {
-                return view('livewire.report.action', ['model' => $model]);
-            })
+            ->addColumn('total_hours_extraordinary')
+            ->addColumn('action')
         ;
     }
 
@@ -146,11 +146,6 @@ final class ReportTable extends PowerGridComponent
     public function actions(\App\Models\Presence $row): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
         ];
     }
 

@@ -37,7 +37,7 @@ final class WorksiteTable extends PowerGridComponent
 			abort(403, __('general.403'));
 		}
 
-		$this->persist(['columns', 'filters']);
+		//$this->persist(['columns', 'filters']);
 
         //$this->showCheckBox();
 
@@ -47,7 +47,6 @@ final class WorksiteTable extends PowerGridComponent
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
 
             Header::make()
-                ->showSearchInput()
                 ->showSearchInput(),
 
             Footer::make()
@@ -88,13 +87,16 @@ final class WorksiteTable extends PowerGridComponent
 
     public function relationSearch(): array
     {
-        return [];
+        return [
+            'company' => [
+                'companies.name',
+            ],
+        ];
     }
 
     public function addColumns(): PowerGridColumns
     {
         return PowerGrid::columns()
-            ->addColumn('name')
             ->addColumn('description')
             ->addColumn('cod')
             ->addColumn('company', fn (Worksite $worksite) => $worksite->company ?? '-')
@@ -111,11 +113,9 @@ final class WorksiteTable extends PowerGridComponent
             Column::make(__('worksite.cod'), 'cod')
                 ->sortable()
                 ->searchable(),
-            Column::make(__('worksite.name'), 'name')
-                ->sortable()
+            Column::make(__('worksite.description'), 'description')
                 ->searchable(),
-            Column::make(__('worksite.description'), 'description'),
-            Column::make(__('worksite.company'), 'company')
+            Column::make(__('worksite.company'), 'company', 'companies.name')
                 ->sortable()
                 ->searchable(),
             Column::make(__('worksite.responsible'), 'responsible')
@@ -131,7 +131,8 @@ final class WorksiteTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-           //
+            Filter::inputText('company', 'companies.name')
+                ->operators(['contains']),
         ];
     }
 
