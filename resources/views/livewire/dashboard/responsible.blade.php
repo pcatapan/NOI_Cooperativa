@@ -18,10 +18,9 @@
     </x-slot>
 
     <div class="py-12">
-
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mb-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-				<p class="p-4 text-xl text-white">{{ \Str::ucfirst(__('shift.shift_today', ['date' => \Carbon\Carbon::now()->format('d/m/Y')])) }}</p>
+				<p class="p-4 text-xl text-white">{{ __('shift.shift_validation') }}</p>
             </div>
         </div>
 

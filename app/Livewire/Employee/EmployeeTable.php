@@ -216,26 +216,6 @@ final class EmployeeTable extends PowerGridComponent
 				->id()
 				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
 				->dispatch('edit', ['employee' => $row->id]),
-
-			Button::add('dismiss')
-				->slot(Str::ucfirst(__('employee.dismiss')))
-				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-red-600 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-red-700')
-				->openModal('employee.dismiss-modal', [
-					'confirmationTitle'       => __('employee.dismiss_confirmation_title'),
-                    'confirmationDescription' => __('employee.dismiss_confirmation_description'),
-                    'id'                  => $row->id,
-                ]),
-
-			//Button::add('delete')
-			//	->slot(Str::ucfirst(__('general.delete')))
-			//	->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-red-600 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-red-700')
-			//	->openModal('delete-modal', [
-			//		'confirmationTitle'       => __('general.delete_confirmation_title'),
-            //        'confirmationDescription' => __('general.delete_confirmation_description'),
-            //        'id'                  => $row->id,
-			//		'ids'					=> [],
-			//		'class'					=> Employee::class,
-            //    ]),
 		];
 	}
 
@@ -243,10 +223,6 @@ final class EmployeeTable extends PowerGridComponent
 	{
 	   return [
 		Rule::button('edit')
-				->when(fn () => Auth::user()->role !== UserRoleEnum::ADMIN->value)
-				->hide(),
-
-		Rule::button('dismiss')
 				->when(fn () => Auth::user()->role !== UserRoleEnum::ADMIN->value)
 				->hide(),
 

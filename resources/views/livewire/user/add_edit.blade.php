@@ -60,16 +60,22 @@
 					</div>
 					
 					{{-- Password e Conferma Password --}}
-					@if(!$user)
-						<div class="w-full flex flex-row gap-9">
-							<div class="w-1/2">
+					<div class="w-full flex flex-row gap-9">
+						<div class="w-1/2">
+							@if(!$user)
 								<x-inputs.password required wire:model="password" name="password" label="{{ \Str::ucfirst(__('employee.password')) }}" placeholder="{{ __('employee.placeholder_password') }}" />
-							</div>
-							<div class="w-1/2">
-								<x-inputs.password required wire:model="password_confirmation" name="password_confirmation" label="{{ \Str::ucfirst(__('employee.password_confirmation')) }}" placeholder="{{ __('employee.placeholder_password') }}" />
-							</div>
+							@else
+								<x-inputs.password wire:model="password" name="password" label="{{ \Str::ucfirst(__('employee.password')) }}" placeholder="{{ __('employee.placeholder_password') }}" />
+							@endif
 						</div>
-					@endif
+						<div class="w-1/2">
+							@if(!$user)
+								<x-inputs.password required wire:model="password_confirmation" name="password_confirmation" label="{{ \Str::ucfirst(__('employee.password_confirmation')) }}" placeholder="{{ __('employee.placeholder_password') }}" />
+							@else
+								<x-inputs.password wire:model="password_confirmation" name="password_confirmation" label="{{ \Str::ucfirst(__('employee.password_confirmation')) }}" placeholder="{{ __('employee.placeholder_password') }}" />
+							@endif
+						</div>
+					</div>
 
 					<div class="flex w-full sm:justify-center mt-4">
 					@if($user)

@@ -62,10 +62,10 @@ final class ShiftTodayTable extends PowerGridComponent
 				'worksites.cod as worksite_cod'
 			)
 			->where('worksites.id_responsable', '=', Auth::user()->employee->id)
-			->where('date', '=', Carbon::today())
 			->where('validated', 0)
 			->orderby('worksites.cod')
-			->orderBy('start', 'asc')
+			->orderby('shifts.date', 'asc')
+			->orderBy('shifts.start', 'asc')
 		;
 	}
 
@@ -80,7 +80,7 @@ final class ShiftTodayTable extends PowerGridComponent
 			->addColumn('user_name')
 			->addColumn('user_surname')
 			->addColumn('worksite_cod')
-			->addColumn('date_formatted', fn (Shift $model) => Carbon::parse($model->date)->format('d/m/Y'))
+			->addColumn('date', fn (Shift $model) => Carbon::parse($model->start)->format('d/m/Y'))
 			->addColumn('start', fn (Shift $model) => Carbon::parse($model->start)->format('H:i'))
 			->addColumn('end', fn (Shift $model) => Carbon::parse($model->end)->format('H:i'))
 			->addColumn('is_extraordinary')
@@ -105,7 +105,7 @@ final class ShiftTodayTable extends PowerGridComponent
 				->sortable()
 				->searchable(),
 
-			Column::make(__('shift.date'), 'date_formatted')
+			Column::make(__('shift.date'), 'date')
 				->sortable(),
 
 			Column::make(__('shift.start_time'), 'start')

@@ -26,4 +26,5 @@ return [
 	'modal_absent_note' => 'Note assenza',
 	'show_note' => 'note',
 	'shift_today' => 'Turni del :date',
+	'shift_validation' => 'Turni da validare',
 ];

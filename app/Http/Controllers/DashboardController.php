@@ -16,7 +16,7 @@ class DashboardController extends Controller
         }
         
         if ($role === UserRoleEnum::ADMIN->value) {
-            return view('dashboard');
+            return app()->call('App\Livewire\Dashboard\Admin');
         }
 
         if ($role === UserRoleEnum::EMPLOYEE->value) {

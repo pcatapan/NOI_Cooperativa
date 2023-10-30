@@ -79,7 +79,7 @@ final class ShiftTable extends PowerGridComponent
 			)
 			->where('worksites.id', $this->worksite->id)
 			->where('validated', 0)
-			->orderBy('date');
+			->orderBy('date', 'desc');
 		;
 	}
 
@@ -111,6 +111,9 @@ final class ShiftTable extends PowerGridComponent
 		return [
 			Column::action('Action'),
 
+			Column::make(__('shift.is_extraordinary'), 'is_extraordinary')
+				->toggleable($canEdit, 1, 0),
+
 			Column::make(__('employee.name'), 'user_name', 'users.name')
 				->sortable()
 				->searchable(),
@@ -129,9 +132,6 @@ final class ShiftTable extends PowerGridComponent
 			Column::make(__('shift.end_time'), 'end')
 				->sortable()
 				->searchable(),
-
-			Column::make(__('shift.is_extraordinary'), 'is_extraordinary')
-				->toggleable($canEdit, 1, 0),
 		];
 	}
 
@@ -145,6 +145,8 @@ final class ShiftTable extends PowerGridComponent
 	public function filters(): array
 	{
 		return [
+			Filter::boolean('is_extraordinary')->label(__('general.yes'), __('general.no')),
+
 			Filter::datepicker('date'),
 		];
 	}

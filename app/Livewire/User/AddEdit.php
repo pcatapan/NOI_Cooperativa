@@ -16,8 +16,8 @@ class AddEdit extends Component
 	public string $name = '';
 	public string $surname = '';
 	public string $email = '';
-	public string $password = '';
-	public string $password_confirmation = '';
+	public ?string $password = null;
+	public ?string $password_confirmation = null;
 	public $role = UserRoleEnum::ADMIN->value;
 
 	public ?User $user = null;
@@ -68,6 +68,10 @@ class AddEdit extends Component
 			$this->user->surname = $this->surname;
 			$this->user->email = $this->email;
 			$this->user->role = $this->role;
+
+			if ($this->password) {
+				$this->user->password = Hash::make($this->password);
+			}
 
 			$this->user->save();
 		} else {

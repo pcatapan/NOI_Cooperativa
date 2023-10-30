@@ -34,14 +34,29 @@
 			console.log("Elemento calendario:", calendarEl);
 			var calendar = new FullCalendar.Calendar(calendarEl, {
 				timeZone: 'Italy/Rome',
+				locale: 'it',
+				firstDay: 1, 
 				initialView: 'timeGridWeek',
 				slotMinTime: '8:00:00',
-				slotMaxTime: '19:00:00',
+				slotMaxTime: '20:00:00',
 				headerToolbar: {
 					left: 'prev,next',
 					center: 'title',
 					right: 'timeGridWeek,timeGridDay' // user can switch between the two
 				},
+				buttonText: {
+					today: 'oggi',
+					month: 'mese',
+					week: 'settimana',  // tradotto in italiano
+					day: 'giorno'  // tradotto in italiano
+				},
+				slotLabelFormat: {
+					hour: '2-digit',
+					minute: '2-digit',
+					omitZeroMinute: false,
+					meridiem: 'short'
+				},
+				allDaySlot: false,
 				views: {
 					timeGridWeek: { // name of view
 						titleFormat: { year: 'numeric', month: 'long', day: '2-digit' }

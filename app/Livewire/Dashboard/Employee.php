@@ -14,17 +14,15 @@ class Employee extends Component
 {
 	public string $name;
 
-	public array $events;
+	public array $events = [];
 
 	public function mount()
 	{
 		$user = Auth::user();
 		$this->name = $user->name . ' ' . $user->surname;
 
-		// Prendo tutti i turni della da oggi a 7 giorni
+		// Prendo tutti i turni dell'utente
 		$shifts = Shift::where('id_employee', $user->employee->id)
-			->where('date', '>=', Carbon::today())
-			->where('date', '<=', Carbon::today()->addDays(7))
 			->get();
 		;
 
@@ -50,12 +48,5 @@ class Employee extends Component
 	public function render()
 	{
 		return view('livewire.dashboard.employee');
-	}
-
-	protected function rules()
-	{
-		return [
-			//
-		];
 	}
 }
