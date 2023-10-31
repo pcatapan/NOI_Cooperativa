@@ -19,4 +19,5 @@ return [
 	'save_success_title' => 'Modifiche salvate con successo',
 	'save_error_title' => 'Errore durante il salvataggio',
 	'number_of_elements' => 'Numero di :elements',
+	'details' => 'Dettagli',
 ];

@@ -62,6 +62,11 @@ class Employee extends Model
         return $this->hasMany(Shift::class, 'id_employee');
     }
 
+    public function presences()
+    {
+        return $this->hasMany(Presence::class, 'id_employee');
+    }
+
     /**
      * Override delete method
      */

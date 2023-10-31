@@ -58,7 +58,7 @@ class AbsentModal extends ModalComponent
         $presence->note = $this->note;
         $presence->absent = true;
         $presence->type_absent = $this->typeAbsent;
-        $presence->hours_worked = 0;
+        $presence->minutes_worked = 0;
 
         $presence->save();
 

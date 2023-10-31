@@ -1,4 +1,5 @@
 <div class="bg-white dark:bg-gray-800 w-full p-4 rounded">
+
 	{{-- È uno straordinario --}}
 	<div class="w-full flex justify-end">
 		<x-toggle
@@ -7,6 +8,7 @@
 			md
 		/>
 	</div>
+
 	<div class="gap-2 flex flex-col">
 		{{-- Selezione dipendenti e Selezione cantiere --}}
 		<div class="w-full flex flex-col sm:flex-row sm:gap-9 gap-2">
@@ -38,6 +40,8 @@
 		<div class="w-full flex flex-col sm:flex-row sm:gap-9 gap-2">
 			<div class="sm:w-1/3 w-full">
 				<x-datetime-picker
+					x-data="{}"
+					x-init="function() {const modalElement = document.getElementById('modal-container');if (modalElement) {modalElement.classList.remove('overflow-hidden');}}"
 					label="{{ \Str::ucfirst(__('shift.date')) }}"
 					placeholder="{{ \Str::ucfirst(__('shift.date_placeholder')) }}"
 					display-format="YYYY-MM-DD"

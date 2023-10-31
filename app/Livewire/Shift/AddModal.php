@@ -5,9 +5,9 @@ namespace App\Livewire\Shift;
 use WireUi\Traits\Actions;
 use App\Enums\UserRoleEnum;
 use App\Models\Shift;
-use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use LivewireUI\Modal\ModalComponent;
 
 class AddModal extends ModalComponent
 {
@@ -23,6 +23,8 @@ class AddModal extends ModalComponent
 	public $endTime = null;
 	public ?string $note = null;
 	public bool $isExtraordinary = false;
+
+	public bool $removeOverflow = true; 
 
     public function mount($worksite)
     {
@@ -98,5 +100,10 @@ class AddModal extends ModalComponent
 			'timeout'     => 2000,
 			'closeButton' => false,
 		]);
+	}
+
+	public static function modalMaxWidth(): string
+	{
+		return 'xl';
 	}
 }

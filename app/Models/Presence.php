@@ -18,8 +18,8 @@ class Presence extends Model
         'time_exit',
         'time_entry_extraordinary',
         'time_exit_extraordinary',
-        'hours_worked',
-        'hours_extraordinary',
+        'minutes_worked',
+        'minutes_extraordinary',
         'motivation_extraordinary',
         'absent',
         'type_absent',
@@ -28,8 +28,8 @@ class Presence extends Model
 
     protected $casts = [
         'date' => 'date',
-        'hours_worked' => 'decimal:2',
-        'hours_extraordinary' => 'decimal:2',
+        'minutes_worked' => 'decimal:2',
+        'minutes_extraordinary' => 'decimal:2',
         'absent' => 'boolean',
     ];
 

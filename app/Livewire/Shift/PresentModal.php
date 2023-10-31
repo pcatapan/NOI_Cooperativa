@@ -54,12 +54,12 @@ class PresentModal extends ModalComponent
         if ($this->shift->is_extraordinary) {
             $presence->time_entry_extraordinary = $start;
             $presence->time_exit_extraordinary = $end;
-            $presence->hours_extraordinary = $start->diffInMinutes($end);
+            $presence->minutes_extraordinary = $start->diffInMinutes($end);
             $presence->motivation_extraordinary = $this->shift->note;
         } else {
             $presence->time_entry = $start;
             $presence->time_exit = $end;
-            $presence->hours_worked = $start->diffInMinutes($end);
+            $presence->minutes_worked = $start->diffInMinutes($end);
             $presence->note = $this->shift->note;
         }
         $presence->absent = false;

@@ -118,10 +118,6 @@ final class ShiftTable extends PowerGridComponent
 				->sortable()
 				->searchable(),
 
-			Column::make(__('employee.surname'), 'user_surname', 'users.surname')
-				->sortable()
-				->searchable(),
-
 			Column::make(__('shift.date'), 'date_formatted', 'date')
 				->sortable(),
 

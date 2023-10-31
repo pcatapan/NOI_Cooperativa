@@ -37,7 +37,7 @@
                     {{ $slot }}
                 </main>
             </div>
-            @livewire('livewire-ui-modal')
+            @livewire('wire-elements-modal')
         </div>
         @stack('scripts')
     </body>

@@ -63,11 +63,11 @@ final class ReportPresencesTable extends PowerGridComponent
             ->select(
                 'presences.*',
                 'users.surname as user_surname',
-                'worksites.cod as worksite_cod',
-                'companies.name as company_name',
-                DB::raw('SUM(hours_worked) as total_hours_worked'),
-                DB::raw('SUM(hours_extraordinary) as total_hours_extraordinary')
+                'users.name as user_name',
+                DB::raw('SUM(minutes_worked) as total_hours_worked'),
+                DB::raw('SUM(minutes_extraordinary) as total_hours_extraordinary')
             )
+            ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
             ->groupBy('presences.id_employee', 'presences.date')
             ->where('absent', false)
             ->orderBy('date', 'desc');
@@ -75,21 +75,21 @@ final class ReportPresencesTable extends PowerGridComponent
 
     public function relationSearch(): array
     {
-        return [];
+        return [
+            'employee' => [
+                'users.name',
+                'users.surname'
+            ],
+        ];
     }
 
     public function addColumns(): PowerGridColumns
     {
         return PowerGrid::columns()
-            ->addColumn('user_surname', function (Presence $model) {
-                return e($model->employee->user->surname);
-            })
-            ->addColumn('company' , function (Presence $model) {
-				return e($model->worksite->company->name);
-			})
-            ->addColumn('worksite_cod' , function (Presence $model) {
-				return e($model->worksite->cod);
-			})
+            ->addColumn('id_employee')
+            ->addColumn('user_surname')
+            ->addColumn('user_name')
+            ->addColumn('user_name_surname')
             ->addColumn('date_formatted', function (Presence $model) {
                 return e(Carbon::parse($model->date)->format('d/m/Y'));
             })
@@ -97,7 +97,15 @@ final class ReportPresencesTable extends PowerGridComponent
                 $interval = CarbonInterval::minutes($model->total_hours_worked);
                 return $interval->cascade()->forHumans();
             })
-            ->addColumn('total_hours_extraordinary')
+            ->addColumn('total_hours_extraordinary', function (Presence $model) {
+                $extraordinaryHours = $model->total_hours_extraordinary;
+                if ($extraordinaryHours == 0) {
+                    return "0 ore";
+                } else {
+                    $interval = CarbonInterval::minutes($extraordinaryHours);
+                    return $interval->cascade()->forHumans();
+                }
+            })
             ->addColumn('action')
         ;
     }
@@ -105,17 +113,19 @@ final class ReportPresencesTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Cognome', 'user_surname')
-                ->sortable()
+            Column::make('ID', 'id_employee')
+                ->hidden(),
+            
+            Column::make('Cognome', 'user_surname', 'users.surname')
+                ->hidden()
                 ->searchable(),
-
-            Column::make('Azienda', 'company')
-                ->sortable()
+            
+            Column::make('Nome', 'user_name', 'users.name')
+                ->hidden()
                 ->searchable(),
-
-            Column::make('Cantiere', 'worksite_cod')
-                ->sortable()
-                ->searchable(),
+            
+            Column::make('Dipendente', 'user_name_surname')
+                ->sortable(),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
@@ -137,15 +147,17 @@ final class ReportPresencesTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert('.$rowId.')');
-    }
-
     public function actions(\App\Models\Presence $row): array
     {
         return [
+            Button::add('details')
+				->slot(Str::ucfirst(__('general.details')))
+				->id()
+				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+				->openModal('report.details', [
+					'employee'	=> $row->id_employee,
+                    'date' => $row->date->format('Y-m-d'),
+			]),
         ];
     }
 

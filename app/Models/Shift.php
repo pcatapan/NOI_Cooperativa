@@ -26,6 +26,10 @@ class Shift extends Model
         'validated' => 'boolean',
     ];
 
+    protected $dates = [
+        'date',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'id_employee');
