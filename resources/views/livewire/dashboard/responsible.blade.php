@@ -32,7 +32,7 @@
         <x-icon name="plus" class="w-10 h-10 fixed rounded-full shadow-lg text-black z-50 cursor-pointer bottom-4 right-4 bg-white" id="create_shift" wire:click="openModalCreateShift"/>
     </div>
 
-    <x-modal.card title="{{ \Str::ucfirst(__('shift.shift')) }}" blur wire:model.defer="createShiftModal">
+    <x-modal.card title="{{ \Str::ucfirst(__('shift.shift')) }}" blur wire:model.defer="createShiftModal" align="center">
 
         {{-- È uno straordinario --}}
         <div class="w-full flex justify-end">

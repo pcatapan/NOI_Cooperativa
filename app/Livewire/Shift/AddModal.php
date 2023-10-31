@@ -63,6 +63,28 @@ class AddModal extends ModalComponent
 		$this->dispatch('pg:eventRefresh-default');
 	}
 
+	public function createShift()
+	{
+		$this->validate();
+
+		$shift = new Shift();
+		$shift->id_employee = $this->employee;
+		$shift->id_worksite = $this->worksite;
+		$shift->date = $this->date;
+		$shift->start = $this->startTime;
+		$shift->end = $this->endTime;
+		$shift->is_extraordinary = $this->isExtraordinary;
+		$shift->note = $this->note;
+
+		$shift->save();
+
+		$this->showSuccessNotification();
+
+		$this->closeModal();
+
+		$this->dispatch('pg:eventRefresh-default');
+	}
+
     protected function rules()
 	{
         return [
