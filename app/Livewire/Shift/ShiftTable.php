@@ -96,6 +96,7 @@ final class ShiftTable extends PowerGridComponent
 	public function addColumns(): PowerGridColumns
 	{
 		return PowerGrid::columns()
+			->addColumn('id')
 			->addColumn('user_name')
 			->addColumn('user_surname')
 			->addColumn('date_formatted', fn (Shift $model) => Carbon::parse($model->date)->format('d/m/Y'))
@@ -110,6 +111,9 @@ final class ShiftTable extends PowerGridComponent
 		$canEdit = Auth::user()->role === UserRoleEnum::RESPONSIBLE->value;
 		return [
 			Column::action('Action'),
+
+			Column::make(__('general.id'), 'id')
+				->hidden(),
 
 			Column::make(__('shift.is_extraordinary'), 'is_extraordinary')
 				->toggleable($canEdit, 1, 0),
@@ -164,6 +168,13 @@ final class ShiftTable extends PowerGridComponent
 				->openModal('show-content-modal', [
 					'title'	=> __('shift.notes'),
 					'content'	=> $row->note,
+			]),
+
+			Button::add('duplicate')
+				->slot(Str::ucfirst(__('shift.duplicate')))
+				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-grey-600 dark:ring-offset-pg-primary-800 dark:text-black dark:bg-grey-700')
+				->openModal('shift.duplicate', [
+					'shift'	=> $row->id,
 			]),
 
 			Button::add('delete')

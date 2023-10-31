@@ -41,6 +41,7 @@ class Employee extends Component
 				'title' => $shift->worksite->cod,
 				'start' => $startTime->toIso8601String(),
 				'end' => $endTime->toIso8601String(),
+				'className' => $shift->validated == 1 ? 'presence' : 'shift',
 			];
 		}
 	}

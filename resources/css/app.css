@@ -79,3 +79,7 @@ a.fc-col-header-cell-cushion{
 .fc-theme-standard .fc-scrollgrid {
     border: none !important;
 }
+
+.presence {
+    background-color: green;
+}
