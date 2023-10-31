@@ -7,9 +7,8 @@
 
 	<div class="py-12">
 		<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-900 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-900 overflow-hidden shadow-sm sm:rounded-lg flex flex-col gap-8">
 				<div class="flex flex-row gap-8">
-
 					{{-- Card Dipendeti  --}}
 					<div class="w-1/3">
 						<x-card shadow-md class="p-2 m-2">
@@ -52,6 +51,28 @@
 									<x-button outline primary label="{{__('general.add')}}" icon="plus" href="{{route('company.add_edit')}}" teal/>
 								</div>
 							</x-slot>
+						</x-card>
+					</div>
+				</div>
+
+				<div class="flex flex-row gap-8">
+					{{-- Card Turni validati  --}}
+					<div class="w-1/2">
+						<x-card shadow-md class="p-2 m-2">
+							<div class="flex justify-between text-gray-700 dark:text-white font-semibold">
+								<span>{{__('general.number_of_elements', ['elements' => __('turni validati')])}}</span>
+								<span>{{ $shiftValidated }}</span>
+							</div>
+						</x-card>
+					</div>
+
+					{{-- Card Turni da validare --}}
+					<div class="w-1/2">
+						<x-card shadow-md class="p-2 m-2">
+							<div class="flex justify-between text-gray-700 dark:text-white font-semibold">
+								<span>{{__('general.number_of_elements', ['elements' => 'turni da validare'])}}</span>
+								<span>{{ $shiftNotValidated }}</span>
+							</div>
 						</x-card>
 					</div>
 				</div>

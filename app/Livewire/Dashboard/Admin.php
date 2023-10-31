@@ -15,6 +15,8 @@ class Admin extends Component
 	public int $numberEmployees;
 	public int $numberCompanies;
 	public int $numberWorksites;
+	public int $shiftValidated;
+	public int $shiftNotValidated;
 
 	public function mount()
 	{
@@ -22,7 +24,8 @@ class Admin extends Component
 		$this->numberEmployees = Models\Employee::where('active', 1)->count();
 		$this->numberCompanies = Models\Company::count();
 		$this->numberWorksites = Models\Worksite::count();
-		
+		$this->shiftValidated = Models\Shift::where('validated', 1)->count();
+		$this->shiftNotValidated = Models\Shift::where('validated', 0)->count();
 	}
 
 	public function render()
