@@ -25,7 +25,7 @@ class Admin extends Component
 		$this->numberCompanies = Models\Company::count();
 		$this->numberWorksites = Models\Worksite::count();
 		$this->shiftValidated = Models\Shift::where('validated', 1)->count();
-		$this->shiftNotValidated = Models\Shift::where('validated', 0)->count();
+		$this->shiftNotValidated = Models\Shift::where('validated', 0)->where('date', '<', Carbon::now())->count();
 	}
 
 	public function render()

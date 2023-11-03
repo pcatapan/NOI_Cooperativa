@@ -21,11 +21,9 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
 use Illuminate\Support\Str;
 
-final class ShiftTable extends PowerGridComponent
+final class ShiftNotValidatedTable extends PowerGridComponent
 {
 	use WithExport;
-
-	// TODO : questa va cambiato con la tab presenze
 
 	public bool $multiSort = true;
 	public $worksite;
@@ -56,7 +54,7 @@ final class ShiftTable extends PowerGridComponent
     {
         return [
             Button::add('create')
-                ->slot(Str::ucfirst(__('shift.create')))
+                ->slot(Str::ucfirst(__('employee.employee_create')))
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->openModal('shift.add-modal', [$this->worksite->id]),
         ];
@@ -81,8 +79,9 @@ final class ShiftTable extends PowerGridComponent
 				'worksites.cod as worksite_cod'
 			)
             ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
+			->where('shifts.date', '<', Carbon::now()->format('Y-m-d'))
 			->where('worksites.id', $this->worksite->id)
-			->where('validated', 1)
+			->where('validated', 0)
 			->orderBy('date', 'desc');
 		;
 	}
@@ -183,22 +182,18 @@ final class ShiftTable extends PowerGridComponent
 					'content'	=> $row->note,
 			]),
 
-			Button::add('duplicate')
-				->slot(Str::ucfirst(__('shift.duplicate')))
-				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-grey-600 dark:ring-offset-pg-primary-800 dark:text-black dark:bg-grey-700')
-				->openModal('shift.duplicate', [
+			Button::add('present')
+				->slot(Str::ucfirst(__('shift.present')))
+				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-green-600 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-green-700')
+				->openModal('shift.present-modal', [
 					'shift'	=> $row->id,
 			]),
 
-			Button::add('delete')
-				->slot(Str::ucfirst(__('general.delete')))
+			Button::add('absent')
+				->slot(Str::ucfirst(__('shift.absent')))
 				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-red-600 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-red-700')
-				->openModal('delete-modal', [
-					'confirmationTitle'       => __('general.delete_confirmation_title'),
-					'confirmationDescription' => __('general.delete_confirmation_description'),
-					'id'                  => $row->id,
-					'ids'					=> [],
-					'class'					=> Shift::class,
+				->openModal('shift.absent-modal', [
+					'shift'	=> $row->id,
 			]),
 		];
 	}
@@ -211,8 +206,13 @@ final class ShiftTable extends PowerGridComponent
 				->hide()
 			,
 
-			Rule::button('delete')
-				->when(fn () => Auth::user()->role === UserRoleEnum::EMPLOYEE->value)
+			Rule::button('present')
+				->when(fn () => $row->validated === 0)
+				->hide()
+			,
+			
+			Rule::button('absent')
+				->when(fn () => $row->validated === 0)
 				->hide()
 			,
 		];

@@ -1,7 +1,7 @@
 <x-app-layout>
 	<x-slot name="header">
 		<h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-			{{ __('navigation.shifts') }}
+			{{ __('navigation.shifts_not_validated') }}
 		</h2>
 	</x-slot>
 
@@ -11,9 +11,9 @@
 				@if (Illuminate\Support\Facades\Auth::user()->role === App\Enums\UserRoleEnum::RESPONSIBLE->value)
 					@foreach(Illuminate\Support\Facades\Auth::user()->employee->worksitesAsResponsible as $worksite)
 						<h2 class="font-semibold text-center mt-2 text-xl text-gray-800 dark:text-gray-200 leading-tight">
-							Tutti i turni validati del cantiere {{ $worksite->cod }}
+							Tutti i turni da validare del cantiere {{ $worksite->cod }}
 						</h2>
-						<livewire:shift.shift-table :worksite="$worksite"/>
+						<livewire:shift.shift-not-validated-table :worksite="$worksite"/>
 					@endforeach
 				@endif
 			</div>

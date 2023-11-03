@@ -17,6 +17,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
 use Illuminate\Support\Str;
 
@@ -61,7 +62,9 @@ final class ShiftTodayTable extends PowerGridComponent
 				'users.surname as user_surname',
 				'worksites.cod as worksite_cod'
 			)
+            ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
 			->where('worksites.id_responsable', '=', Auth::user()->employee->id)
+			->where('shifts.date', '=', Carbon::now()->format('Y-m-d'))
 			->where('validated', 0)
 			->orderby('worksites.cod')
 			->orderby('shifts.date', 'asc')
@@ -71,14 +74,20 @@ final class ShiftTodayTable extends PowerGridComponent
 
 	public function relationSearch(): array
 	{
-		return [];
+		return [
+			'employee' => [
+                'users.name',
+                'users.surname'
+            ],
+		];
 	}
 
 	public function addColumns(): PowerGridColumns
 	{
 		return PowerGrid::columns()
-			->addColumn('user_name')
 			->addColumn('user_surname')
+			->addColumn('user_name')
+			->addColumn('user_name_surname')
 			->addColumn('worksite_cod')
 			->addColumn('date_formatted', fn (Shift $model) => $model->date->format('d/m/Y'))
 			->addColumn('start', fn (Shift $model) => Carbon::parse($model->start)->format('H:i'))
@@ -93,11 +102,15 @@ final class ShiftTodayTable extends PowerGridComponent
 		return [
 			Column::action(__('general.action')),
 
-			Column::make(__('employee.name'), 'user_name', 'users.name')
-				->sortable()
-				->searchable(),
+			Column::make('Cognome', 'user_surname', 'users.surname')
+                ->hidden()
+                ->searchable(),
+            
+            Column::make('Nome', 'user_name', 'users.name')
+                ->hidden()
+                ->searchable(),
 
-			Column::make(__('employee.surname'), 'user_surname', 'users.surname')
+			Column::make(__('employee.user'), 'user_name_surname')
 				->sortable()
 				->searchable(),
 			

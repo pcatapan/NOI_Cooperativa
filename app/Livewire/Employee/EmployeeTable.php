@@ -18,6 +18,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridColumns;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Illuminate\Support\Str;
 
@@ -78,9 +79,11 @@ final class EmployeeTable extends PowerGridComponent
 			->select([
 				'employees.*',
 				'companies.name as company',
-				'users.surname as surname',
+				'users.surname as user_surname',
+                'users.name as user_name',
 				'users.role as role',
-			]);
+			])
+            ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
 		;
 	}
 
@@ -88,7 +91,8 @@ final class EmployeeTable extends PowerGridComponent
 	{
 		return [
 			'user' => [
-				'surname',
+				'name',
+                'surname',
 				'companies.name',
 				'role'
 			],
@@ -98,9 +102,9 @@ final class EmployeeTable extends PowerGridComponent
 	public function addColumns(): PowerGridColumns
 	{
 		return PowerGrid::columns()
-			->addColumn('surname', function (Employee $model) {
-				return e($model->user->surname);
-			})
+			->addColumn('user_surname')
+			->addColumn('user_name')
+			->addColumn('user_name_surname')
 			->addColumn('role', function (Employee $model) {
 				return e(UserRoleEnum::from($model->user->role)->labels());
 			})
@@ -129,7 +133,15 @@ final class EmployeeTable extends PowerGridComponent
 			Column::make(__('employee.active'), 'active')
 				->toggleable(),
 
-			Column::make(__('employee.surname'), 'surname', 'users.surname')
+			Column::make('Cognome', 'user_surname', 'users.surname')
+                ->hidden()
+                ->searchable(),
+            
+            Column::make('Nome', 'user_name', 'users.name')
+                ->hidden()
+                ->searchable(),
+
+			Column::make(__('employee.user'), 'user_name_surname')
 				->sortable()
 				->searchable(),
 			

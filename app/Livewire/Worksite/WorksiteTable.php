@@ -15,8 +15,9 @@ use PowerComponents\LivewirePowerGrid\PowerGridColumns;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use Livewire\Attributes\On;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use App\Enums\UserRoleEnum;
 use Illuminate\Support\Str;
 
@@ -81,8 +82,11 @@ final class WorksiteTable extends PowerGridComponent
             ->select([
                 'worksites.*',
                 'companies.name as company',
-                'users.name as responsible'
-            ]);
+                'users.surname as user_surname',
+                'users.name as user_name',
+            ])
+         ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
+        ;
     }
 
     public function relationSearch(): array
@@ -90,6 +94,10 @@ final class WorksiteTable extends PowerGridComponent
         return [
             'company' => [
                 'companies.name',
+            ],
+            'employee' => [
+                'users.name',
+                'users.surname'
             ],
         ];
     }
@@ -100,7 +108,9 @@ final class WorksiteTable extends PowerGridComponent
             ->addColumn('description')
             ->addColumn('cod')
             ->addColumn('company', fn (Worksite $worksite) => $worksite->company ?? '-')
-            ->addColumn('responsible', fn (Worksite $worksite) => $worksite->responsible ?? '-')
+            ->addColumn('user_surname')
+            ->addColumn('user_name')
+            ->addColumn('user_name_surname')
             ->addColumn('total_hours')
             ->addColumn('total_hours_extraordinary')
         ;
@@ -110,19 +120,33 @@ final class WorksiteTable extends PowerGridComponent
     {
         return [
             Column::action(__('general.action')),
+
             Column::make(__('worksite.cod'), 'cod')
                 ->sortable()
                 ->searchable(),
+
             Column::make(__('worksite.description'), 'description')
                 ->searchable(),
+
             Column::make(__('worksite.company'), 'company', 'companies.name')
                 ->sortable()
                 ->searchable(),
-            Column::make(__('worksite.responsible'), 'responsible')
+
+            Column::make('Cognome', 'user_surname', 'users.surname')
+                ->hidden()
+                ->searchable(),
+            
+            Column::make('Nome', 'user_name', 'users.name')
+                ->hidden()
+                ->searchable(),
+
+            Column::make(__('worksite.responsible'), 'user_name_surname')
                 ->sortable()
                 ->searchable(),
+
             Column::make(__('worksite.total_hours'), 'total_hours')
                 ->sortable(),
+
             Column::make(__('worksite.total_hours_extraordinary'), 'total_hours_extraordinary')
                 ->sortable(),
         ];

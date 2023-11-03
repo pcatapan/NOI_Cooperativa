@@ -4,7 +4,7 @@ return [
 	'create' => 'Crea nuovo utente',
 	'name' => 'nome',
 	'placeholder_name' => 'Mario',
-	'surname' => 'cognome',
+	'user' => 'utente',
 	'placeholder_surname' => 'Rossi',
 	'job' => 'mansione',
 	'placeholder_job' => 'Operaio',

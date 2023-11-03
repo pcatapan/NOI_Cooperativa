@@ -2,6 +2,7 @@
 
 return [
 	'shift' => 'Turno',
+	'create' => 'Crea turno',
 	'worksite' => 'Cantiere',
 	'worksite_placeholder' => 'Cantiere 1',
 	'date' => 'Data',

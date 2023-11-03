@@ -86,7 +86,7 @@
 	</div>
 
 	<div class="flex justify-between gap-x-4 mt-4">
-		<x-button flat label="{{ \Str::ucfirst(__('general.cancel')) }}" x-on:click="close" />
+		<x-button flat label="{{ \Str::ucfirst(__('general.cancel')) }}" wire:click="cancel" />
 
 		<div class="flex">
 			<x-button primary label="{{ \Str::ucfirst(__('general.save')) }}" wire:click="createShift" />
