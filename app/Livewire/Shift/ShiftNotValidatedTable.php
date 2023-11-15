@@ -114,7 +114,7 @@ final class ShiftNotValidatedTable extends PowerGridComponent
 	{
 		$canEdit = Auth::user()->role === UserRoleEnum::RESPONSIBLE->value;
 		return [
-			Column::action('Action'),
+			Column::action(__('general.action')),
 
 			Column::make(__('general.id'), 'id')
 				->hidden(),

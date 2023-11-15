@@ -92,6 +92,14 @@
 						</div>
 					</div>
 
+					{{-- Socio, Disabile, Svantaggiato sociale e Passaggio cantiere --}}
+					<div class="w-full flex flex-row gap-9 justify-between">
+						<x-toggle left-label="{{ \Str::ucfirst(__('employee.partner')) }}" wire:model.defer="partner" />
+						<x-toggle left-label="{{ \Str::ucfirst(__('employee.disabled')) }}" wire:model.defer="disabled" />
+						<x-toggle left-label="{{ \Str::ucfirst(__('employee.socially_disadvantaged')) }}" wire:model.defer="socially_disadvantaged" />
+						<x-toggle left-label="{{ \Str::ucfirst(__('employee.worksite_passage')) }}" wire:model.defer="worksite_passage" />
+					</div>
+
 					{{-- Job, Data di Assunzione e Azienda --}}
 					<div class="w-full flex flex-row gap-9">
 						<div class="w-1/3">
@@ -125,6 +133,38 @@
 							</x-select>
 							@error('company') <span class="error">{{ $message }}</span> @enderror
 						</div>
+					</div>
+
+					{{-- Tipo di contratto e Scadenza contratto --}}
+					<div class="w-full flex flex-row gap-9 justify-between">
+						<div class="w-1/2">
+							<x-native-select
+								label="{{ \Str::ucfirst(__('employee.contract_type')) }}"
+								:options="[
+									['name' => 'Tempo determinato', 'id' => 'fixed_term'],
+									['name' => 'Tempo indeterminato', 'id' => 'undetermined'],
+								]"
+								option-label="name"
+								option-value="id"
+								wire:model.live="contract_type"
+								required
+							/>
+							@error('contract_type') <span class="error">{{ $message }}</span> @enderror
+						</div>
+
+						@if($contract_type == 'fixed_term')
+							<div class="w-1/2">
+								<x-datetime-picker
+									label="{{ \Str::ucfirst(__('employee.contract_expiry_date')) }}"
+									placeholder=""
+									parse-format="YYYY-MM-DD"
+									wire:model="contract_expiry_date"
+									class="mb-2"
+									without-time="true"
+									required
+								/>
+							</div>
+						@endif
 					</div>
 
 					{{-- Matricola, Codice Fiscale e Codice Inps --}}
@@ -240,6 +280,18 @@
 						</div>
 					</div>
 
+					{{-- Note --}}
+					<div class="w-full">
+						<label for="notes" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">{{ \Str::ucfirst(__('employee.notes')) }}</label>
+						<div class="relative rounded-md  shadow-sm ">
+							<div class="absolute inset-y-0 left-0 pl-2.5 sm:flex hidden items-center pointer-events-none text-secondary-400">
+								<x-icon name="document-text" class="w-5 h-5" />
+							</div>
+							<textarea wire:model="notes" id="notes" placeholder="{{ __('employee.placeholder_notes') }}" class="placeholder-secondary-400 dark:bg-secondary-800 dark:text-secondary-400 dark:placeholder-secondary-500 border border-secondary-300 focus:ring-primary-500 focus:border-primary-500 dark:border-secondary-600 form-textarea block w-full sm:text-sm rounded-md transition ease-in-out duration-100 focus:outline-none shadow-sm sm:pl-8 pl-2"></textarea>
+						</div>
+						@error('notes') <span class="error">{{ $message }}</span> @enderror
+					</div>
+
 					{{-- Password e Conferma Password --}}
 					<div class="w-full flex flex-row gap-9">
 						<div class="w-1/2">
@@ -258,6 +310,7 @@
 						</div>
 					</div>
 
+					{{-- Submit --}}
 					<div class="flex w-full sm:justify-center mt-4">
 						@if($employee)
 							<x-button class="w-full sm:w-1/2" type="submit" lg icon="check" label="{{ \Str::ucfirst(__('general.edit')) }}"/>

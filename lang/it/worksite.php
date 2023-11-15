@@ -1,11 +1,11 @@
 <?php
 
 return [
-	'create' => 'Crea nuovo cantiere',
+	'create' => 'Crea nuovo impianto',
 	'name' => 'nome',
-	'placeholder_name' => 'Cantiere 1',
+	'placeholder_name' => 'Impianto 1',
 	'description' => 'descrizione',
-	'placeholder_description' => 'Descrizione cantiere 1',
+	'placeholder_description' => 'Descrizione impianto 1',
 	'cod' => 'codice',
 	'placeholder_cod' => 'C1',
 	'address' => 'indirizzo',
@@ -24,8 +24,8 @@ return [
 	'total_hours_extraordinary' => 'ore straordinari',
 	'placeholder_total_hours_extraordinary' => '10',
 	'notes' => 'note',
-	'placeholder_notes' => 'Note cantiere 1',
-	'edit' => 'modifica cantiere',
+	'placeholder_notes' => 'Note impianto 1',
+	'edit' => 'modifica impianto',
 	'responsible' => 'responsabile',
 	'placeholder_responsible' => 'Mario Rossi',
 	'company' => 'azienda',

@@ -16,9 +16,7 @@ use App\Enums\UserRoleEnum;
 */
 
 
-Route::get('/', function () {
-    return redirect()->route('login');
- })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', fn () => redirect()->route('login'))->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
 
@@ -29,52 +27,46 @@ Route::middleware('auth')->group(function () {
     /**
      * Usere
      */
-    Route::get('users', function () {
-        return view('livewire.user.index');
-    })->name('users.index');
+    Route::get('users', fn () => view('livewire.user.index'))->name('users.index');
     Route::post('/user', [App\Http\Controllers\UserController::class, 'store'])->name('user.store');
     Route::get('/user/{user?}', 'App\Livewire\User\AddEdit')->name('user.add_edit');
 
     /**
      * Employee
      */
-    Route::get('employees', function () {
-        return view('livewire.employee.index');
-    })->name('employees.index');
+    Route::get('employees', fn () => view('livewire.employee.index'))->name('employees.index');
     Route::get('/employee/{employee?}', 'App\Livewire\Employee\AddEdit')->name('employee.add_edit');
 
     /**
      * Company
      */
-    Route::get('companies', function () {
-        return view('livewire.company.index');
-    })->name('companies.index');
+    Route::get('companies',fn () => view('livewire.company.index'))->name('companies.index');
     Route::get('/company/{company?}', 'App\Livewire\Company\AddEdit')->name('company.add_edit');
 
     /**
      * Worksite
      */
-    Route::get('worksites', function () {
-        return view('livewire.worksite.index');
-    })->name('worksites.index');
+    Route::get('worksites', fn () => view('livewire.worksite.index'))->name('worksites.index');
     Route::get('/worksite/{worksite?}', 'App\Livewire\Worksite\AddEdit')->name('worksite.add_edit');
 
     /**
      * Report
      */
-    Route::get('reports', function () {
-        return view('livewire.report.index');
-    })->name('reports.index');
+    Route::get('reports/employee', fn () => view('livewire.report.employee'))->name('reports.employee');
+    Route::get('reports/company', fn () => view('livewire.report.company'))->name('reports.company');
+    Route::get('reports/worksite', fn () => view('livewire.report.worksite'))->name('reports.worksite');
 
     /**
      * Shift
      */
-    Route::get('shifts', function () {
-        return view('livewire.shift.index');
-    })->name('shifts.index');
-    Route::get('/shift-not-validated', function () {
-        return view('livewire.shift.not-validated');
-    })->name('shifts.not_validated');
+    //Route::get('shifts', fn () => view('livewire.shift.index'))->name('shifts.index');
+    Route::get('/shift-not-validated', fn () => view('livewire.shift.not-validated'))->name('shifts.not_validated');
+
+    /**
+     * Presence
+     */
+    Route::get('presences', fn () => view('livewire.presence.index'))->name('presences.index');
+    Route::get('absence', fn () => view('livewire.presence.absence'))->name('absence.index');
 
 
 });

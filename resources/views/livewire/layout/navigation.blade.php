@@ -28,7 +28,7 @@ new class extends Component
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex items-center">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('general.dashboard') }}
                     </x-nav-link>
@@ -45,19 +45,41 @@ new class extends Component
                         <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
                             {{ __('navigation.users') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
-                            {{ __('navigation.reports') }}
-                        </x-nav-link>
                     @endif
 
                     @if (auth()->user()->role === \App\Enums\UserRoleEnum::RESPONSIBLE->value)
-                        <x-nav-link :href="route('shifts.index')" :active="request()->routeIs('shifts.index')" wire:navigate>
-                           {{ __('navigation.shifts') }}
-                        </x-nav-link>
                         <x-nav-link :href="route('shifts.not_validated')" :active="request()->routeIs('shifts.not_validated')" wire:navigate>
                            {{ __('navigation.shifts_not_validated') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('presences.index')" :active="request()->routeIs('presences.index')" wire:navigate>
+                           {{ __('navigation.presence') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('absence.index')" :active="request()->routeIs('absence.index')" wire:navigate>
+                           {{ __('navigation.absence') }}
+                        </x-nav-link>
                     @endif
+
+                    <x-dropdown>
+                        <x-slot name="trigger" class="flex">
+                            <p class="flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out">
+                                {{ __('navigation.reports') }}<x-icon name="chevron-down" class="w-4 h-4 ml-1" />
+                            </p>
+                        </x-slot>
+                    
+                        @if (auth()->user()->role === \App\Enums\UserRoleEnum::ADMIN->value)  
+                            <x-dropdown-link :href="route('reports.employee')" wire:navigate>
+                                {{ __('navigation.report_presences') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('reports.company')" wire:navigate>
+                                {{ __('navigation.report_companies') }}
+                            </x-dropdown-link>
+                        @endif
+                        @if (auth()->user()->role !== \App\Enums\UserRoleEnum::EMPLOYEE->value)
+                            <x-dropdown-link :href="route('reports.worksite')" wire:navigate>
+                            {{ __('navigation.report_worksites') }}
+                            </x-dropdown-link>
+                        @endif
+                    </x-dropdown>
                 </div>
             </div>
 
@@ -157,14 +179,29 @@ new class extends Component
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
                     {{ __('navigation.users') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')" wire:navigate>
-                    {{ __('navigation.reports') }}
+                <x-responsive-nav-link :href="route('reports.employee')" :active="request()->routeIs('reports.employee')" wire:navigate>
+                    {{ __('navigation.report_presences') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reports.company')" :active="request()->routeIs('reports.company')" wire:navigate>
+                    {{ __('navigation.report_companies') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reports.worksite')" :active="request()->routeIs('reports.worksite')" wire:navigate>
+                    {{ __('navigation.report_worksites') }}
                 </x-responsive-nav-link>
             @endif
 
             @if (auth()->user()->role === \App\Enums\UserRoleEnum::RESPONSIBLE->value)
-                <x-responsive-nav-link :href="route('shifts.index')" :active="request()->routeIs('shifts.index')" wire:navigate>
+                {{--<x-responsive-nav-link :href="route('shifts.index')" :active="request()->routeIs('shifts.index')" wire:navigate>
                     {{ __('navigation.shifts') }}
+                </x-responsive-nav-link>--}}
+                <x-nav-link :href="route('presences.index')" :active="request()->routeIs('presences.index')" wire:navigate>
+                    {{ __('navigation.presence') }}
+                </x-nav-link>
+                <x-nav-link :href="route('absence.index')" :active="request()->routeIs('absence.index')" wire:navigate>
+                           {{ __('navigation.absence') }}
+                        </x-nav-link>
+                <x-responsive-nav-link :href="route('reports.worksite')" :active="request()->routeIs('reports.worksite')" wire:navigate>
+                    {{ __('navigation.report_worksites') }}
                 </x-responsive-nav-link>
             @endif
         </div>

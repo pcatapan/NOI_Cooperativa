@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Livewire\Shift;
+namespace App\Livewire\Presence;
 
-use App\Models\Shift;
+use App\Enums\PresesenceTypeEnum;
+use App\Models\Presence;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -19,9 +20,10 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
+use App\Models\Shift;
 use Illuminate\Support\Str;
 
-final class ShiftTable extends PowerGridComponent
+final class AbsenceTable extends PowerGridComponent
 {
 	use WithExport;
 
@@ -43,8 +45,7 @@ final class ShiftTable extends PowerGridComponent
 				->striped()
 				->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
 
-			Header::make()
-				->showSearchInput(),
+			Header::make(),
 
 			Footer::make()
 				->showPerPage()
@@ -64,7 +65,10 @@ final class ShiftTable extends PowerGridComponent
 
 	public function datasource(): Builder
 	{
-		return Shift::query()
+		return Presence::query()
+            ->leftjoin('shifts', function($shift) {
+                $shift->on('presences.id_shift', 'shifts.id');
+            })
 			->leftjoin('employees', function($employee) {
 				$employee->on('shifts.id_employee', 'employees.id');
 			})
@@ -75,14 +79,18 @@ final class ShiftTable extends PowerGridComponent
 				$worksite->on('shifts.id_worksite', 'worksites.id');
 			})
 			->select(
-				'shifts.*',
+				'presences.*',
 				'users.name as user_name',
 				'users.surname as user_surname',
-				'worksites.cod as worksite_cod'
+                'shifts.is_extraordinary as is_extraordinary',
+                'shifts.id as shift_id',
+                'shifts.note as note',
+				'worksites.cod as worksite_cod',
 			)
             ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
 			->where('worksites.id', $this->worksite->id)
-			->where('validated', 1)
+			->where('shifts.validated', 1)
+            ->where('presences.absent', 1)
 			->orderBy('date', 'desc');
 		;
 	}
@@ -90,10 +98,12 @@ final class ShiftTable extends PowerGridComponent
 	public function relationSearch(): array
 	{
 		return [
-			'employee' => [
-				'users.name',
-				'users.surname'
-			]
+            'shift' => [
+                'employee' => [
+                    'users.name',
+                    'users.surname'
+                ]
+            ]
 		];
 	}
 
@@ -101,12 +111,13 @@ final class ShiftTable extends PowerGridComponent
 	{
 		return PowerGrid::columns()
 			->addColumn('id')
+            ->addColumn('shift_id')
 			->addColumn('user_surname')
             ->addColumn('user_name')
             ->addColumn('user_name_surname')
-			->addColumn('date_formatted', fn (Shift $model) => Carbon::parse($model->date)->format('d/m/Y'))
-			->addColumn('start', fn (Shift $model) => Carbon::parse($model->start)->format('H:i'))
-			->addColumn('end', fn (Shift $model) => Carbon::parse($model->end)->format('H:i'))
+			->addColumn('date_formatted', fn (Presence $model) => Carbon::parse($model->date)->format('d/m/Y'))
+			->addColumn('start', fn (Presence $model) => Carbon::parse($model->time_entry)->format('H:i'))
+			->addColumn('end', fn (Presence $model) => Carbon::parse($model->time_exit)->format('H:i'))
 			->addColumn('is_extraordinary')
 		;
 	}
@@ -119,6 +130,9 @@ final class ShiftTable extends PowerGridComponent
 
 			Column::make(__('general.id'), 'id')
 				->hidden(),
+            
+            Column::make(__('general.id'), 'shift_id')
+                ->hidden(),
 
 			Column::make(__('shift.is_extraordinary'), 'is_extraordinary')
 				->toggleable($canEdit, 1, 0),
@@ -153,6 +167,10 @@ final class ShiftTable extends PowerGridComponent
 		Shift::query()->find($id)->update([
 			$field => $value,
 		]);
+
+        Presence::query()->where('id_shift', $id)->update([
+            'type' => $value ? PresesenceTypeEnum::EXTRAORDINARY->value : PresesenceTypeEnum::ORDINARY->value,
+        ]);
 	}
 
 	public function filters(): array
@@ -164,7 +182,7 @@ final class ShiftTable extends PowerGridComponent
 		];
 	}
 
-	public function actions(\App\Models\Shift $row): array
+	public function actions(\App\Models\Presence $row): array
 	{
 		return [
 			Button::add('edit')
@@ -172,7 +190,7 @@ final class ShiftTable extends PowerGridComponent
 				->id()
 				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
 				->openModal('shift.edit-modal', [
-					'shift'	=> $row->id,
+					'shift'	=> $row->shift_id,
 			]),
 			
 			Button::add('show-note')
@@ -183,20 +201,13 @@ final class ShiftTable extends PowerGridComponent
 					'content'	=> $row->note,
 			]),
 
-			Button::add('duplicate')
-				->slot(Str::ucfirst(__('shift.duplicate')))
-				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-grey-600 dark:ring-offset-pg-primary-800 dark:text-black dark:bg-grey-700')
-				->openModal('shift.duplicate', [
-					'shift'	=> $row->id,
-			]),
-
 			Button::add('delete')
 				->slot(Str::ucfirst(__('general.delete')))
 				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-red-600 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-red-700')
 				->openModal('delete-modal', [
 					'confirmationTitle'       => __('general.delete_confirmation_title'),
 					'confirmationDescription' => __('general.delete_confirmation_description'),
-					'id'                  => $row->id,
+					'id'                    => $row->shift_id,
 					'ids'					=> [],
 					'class'					=> Shift::class,
 			]),

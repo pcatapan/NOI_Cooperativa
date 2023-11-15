@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use App\Enums\UserRoleEnum;
+use App\Models\Company;
 use Illuminate\Support\Str;
 
 final class WorksiteTable extends PowerGridComponent
@@ -155,8 +156,10 @@ final class WorksiteTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::inputText('company', 'companies.name')
-                ->operators(['contains']),
+            Filter::select('company', 'companies.name')
+                ->dataSource(Company::all())
+                ->optionValue('name')
+                ->optionLabel('name'),
         ];
     }
 

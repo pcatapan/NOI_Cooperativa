@@ -40,8 +40,8 @@ class Shift extends Model
         return $this->belongsTo(Worksite::class, 'id_worksite');
     }
 
-    public function presences()
+    public function presence()
     {
-        return $this->hasMany(Presence::class, 'id_shift');
+        return $this->hasOne(Presence::class, 'id_shift');
     }
 }

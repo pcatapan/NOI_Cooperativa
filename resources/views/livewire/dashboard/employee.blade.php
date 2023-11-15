@@ -69,7 +69,7 @@
 
 			setTimeout(function() {
 				calendar.updateSize();
-			}, 100);
+			}, 10);
 		});
 	</script>
 @endpush

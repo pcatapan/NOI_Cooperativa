@@ -20,4 +20,7 @@ return [
 	'save_error_title' => 'Errore durante il salvataggio',
 	'number_of_elements' => 'Numero di :elements',
 	'details' => 'Dettagli',
+	'search' => 'Cerca',
+	'view' => 'Visualizza',
+	'title' => ':title',
 ];

@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\User;
 use App\Enums\UserRoleEnum;
+use App\Enums\ContractTypeEnum;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Support\Facades\Hash;
@@ -24,8 +25,13 @@ class AddEdit extends Component
 	public string $email = '';
 	public string $password = '';
 	public string $password_confirmation = '';
+	public ?string $notes = null;
 	public string $fiscal_code = "";
 	public $date_birth = "";
+	public bool $partner = true;
+	public bool $disabled = false;
+	public bool $socially_disadvantaged = false;
+	public bool $worksite_passage = false;
 	public ?string $number_serial = null;
 	public ?string $iban = null;
 	public ?int $work_hour_week_by_contract = null;
@@ -36,11 +42,12 @@ class AddEdit extends Component
 	public ?string $city = null;
 	public ?string $province = null;
 	public ?string $zip_code = null;
-	public ?string $notes = null;
 	public ?string $job = null;
 	public $role = null;
 	public $company = null;
 	public ?string $date_of_hiring = null;
+	public ?string $contract_type = null;
+	public $contract_expiry_date = null;
 	public $date_of_resignation = "";
 	public $active = null;
 
@@ -68,6 +75,10 @@ class AddEdit extends Component
             'surname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
 			'date_birth' => 'nullable',
+			'partner' => 'nullable|boolean',
+			'disabled' => 'nullable|boolean',
+			'socially_disadvantaged' => 'nullable|boolean',
+			'worksite_passage' => 'nullable|boolean',
 			'fiscal_code' => 'string|max:16|required|unique:employees',
             'number_serial' => 'string|max:100|nullable',
 			'iban' => 'string|max:27|nullable',
@@ -82,6 +93,8 @@ class AddEdit extends Component
             'zip_code' => 'string|max:6|nullable',
             'notes' => 'string|nullable',
             'date_of_hiring' => 'nullable',
+			'contract_type' => 'nullable|string|in:' . implode(',', ContractTypeEnum::getValues()),
+			'contract_expiry_date' => 'nullable|required_if:contract_type,' . ContractTypeEnum::DETERMINED->value,
             'job' => 'string|max:255|nullable',
 			'role' => 'required|string|in:' . implode(',', UserRoleEnum::getValues()),
             'password' => 'required|string|confirmed|min:6',
@@ -99,6 +112,7 @@ class AddEdit extends Component
 	public function mount()
 	{
 		$this->role = UserRoleEnum::EMPLOYEE->value;
+		$this->contract_type = ContractTypeEnum::DETERMINED->value;
 		if (request()->employee) {
 			$employee = request()->employee;
 			$this->employee = $employee;
@@ -108,6 +122,10 @@ class AddEdit extends Component
 			$this->role = $employee->user->role;
 			$this->company = $employee->user->id_company;
 			$this->date_birth = $employee->user->date_birth ?? null;
+			$this->partner = $employee->partner;
+			$this->disabled = $employee->disabled;
+			$this->socially_disadvantaged = $employee->socially_disadvantaged;
+			$this->worksite_passage = $employee->worksite_passage;
 			$this->fiscal_code = $employee->fiscal_code;
 			$this->phone = $employee->phone;
 			$this->number_serial = $employee->number_serial;
@@ -119,8 +137,10 @@ class AddEdit extends Component
 			$this->city = $employee->city;
 			$this->province = $employee->province;
 			$this->zip_code = $employee->zip_code;
-			$this->notes = $employee->notes;
+			$this->notes = $employee->user->notes;
 			$this->date_of_hiring = $employee->date_of_hiring ?? null;
+			$this->contract_type = $employee->contract_type;
+			$this->contract_expiry_date = $employee->contract_expiry_date ?? null;
 			$this->job = $employee->job;
 		}
 
@@ -147,12 +167,19 @@ class AddEdit extends Component
 			$this->employee->user->role = $this->role;
 			$this->employee->user->date_birth = $this->date_birth ?? null;
 			$this->employee->user->id_company = $this->company;
+			$this->employee->user->notes = $this->notes;
 			
 			$this->employee->user->save();
 			
+			$this->partner = $this->partner;
+			$this->disabled = $this->disabled;
+			$this->socially_disadvantaged = $this->socially_disadvantaged;
+			$this->worksite_passage = $this->worksite_passage;
 			$this->employee->phone = $this->phone;
 			$this->employee->job = $this->job;
 			$this->employee->date_of_hiring = $this->date_of_hiring ?? null;
+			$this->employee->contract_type = $this->contract_type;
+			$this->employee->contract_expiry_date = $this->contract_expiry_date ?? null;
 			$this->employee->number_serial = $this->number_serial;
 			$this->employee->iban = $this->iban;
 			$this->employee->work_hour_week_by_contract = $this->work_hour_week_by_contract;
@@ -174,14 +201,21 @@ class AddEdit extends Component
 			$user->role = $this->role;
 			$user->date_birth = $this->date_birth ?? null;
 			$user->id_company = $this->company;
+			$user->notes = $this->notes;
 			
 			$user->save();
 
 			$employee = new Employee();
 			$employee->id_user = $user->id;
+			$employee->partner = $this->partner;
+			$employee->disabled = $this->disabled;
+			$employee->socially_disadvantaged = $this->socially_disadvantaged;
+			$employee->worksite_passage = $this->worksite_passage;
 			$employee->phone = $this->phone;
 			$employee->job = $this->job;
 			$employee->date_of_hiring = $this->date_of_hiring ?? Carbon::now();
+			$employee->contract_type = $this->contract_type;
+			$employee->contract_expiry_date = $this->contract_expiry_date ?? null;
 			$employee->number_serial = $this->number_serial;
 			$employee->iban = $this->iban;
 			$employee->work_hour_week_by_contract = $this->work_hour_week_by_contract;

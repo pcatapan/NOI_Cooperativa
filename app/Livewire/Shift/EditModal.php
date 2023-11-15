@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Shift;
 
+use App\Enums\PresesenceTypeEnum;
 use WireUi\Traits\Actions;
 use App\Enums\UserRoleEnum;
 use App\Models\Shift;
@@ -55,8 +56,18 @@ class EditModal extends ModalComponent
 			$this->shift->end = $this->end;
 			$this->shift->is_extraordinary = $this->isExtraordinary;
 			$this->shift->note = $this->note ?? null;
-	
+
 			$this->shift->save();
+
+			if($this->shift->validated) {
+				$this->shift->presences->date = $this->date;
+				$this->shift->presences->time_entry = $this->start;
+				$this->shift->presences->time_exit = $this->end;
+				$this->shift->presences->is_extraordinary = $this->isExtraordinary ? PresesenceTypeEnum::EXTRAORDINARY->value : PresesenceTypeEnum::ORDINARY->value;
+				$this->shift->presences->minutes_worked = $this->shift->presences->calculateMinutesWorked();
+
+				$this->shift->presences->save();
+			}
 		} catch (\Exception $e) {
 			$this->showErrorNotification();
 			return;

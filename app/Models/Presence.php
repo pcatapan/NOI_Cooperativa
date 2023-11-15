@@ -33,6 +33,10 @@ class Presence extends Model
         'absent' => 'boolean',
     ];
 
+    protected $appends = [
+        'worksite_cod',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'id_employee');
@@ -46,5 +50,23 @@ class Presence extends Model
     public function shift()
     {
         return $this->belongsTo(Shift::class, 'id_shift');
+    }
+
+    public function getWorksiteCodAttribute()
+    {
+        return $this->worksite->cod;
+    }
+
+    public function calculateMinutesWorked()
+    {
+        $timeEntry = $this->shift->start;
+        $timeExit = $this->shift->end;
+
+        $timeEntry = \Carbon\Carbon::parse($timeEntry);
+        $timeExit = \Carbon\Carbon::parse($timeExit);
+
+        $minutesWorked = $timeExit->diffInMinutes($timeEntry);
+
+        return $minutesWorked;
     }
 }

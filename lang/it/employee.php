@@ -3,6 +3,7 @@
 return [
 	'create' => 'Crea nuovo utente',
 	'name' => 'nome',
+	'surname' => 'cognome',
 	'placeholder_name' => 'Mario',
 	'user' => 'utente',
 	'placeholder_surname' => 'Rossi',
@@ -53,4 +54,12 @@ return [
 	'dismiss_success_title' => 'dipendente disattivato',
 	'company' => 'azienda',
 	'placeholder_company' => 'seleziona azienda',
+	'partner' => 'socio',
+	'disabled' => 'Diversamente abile',
+	'socially_disadvantaged' => 'Svantaggiato sociale',
+	'worksite_passage' => 'Passaggio cantiere',
+	'contract_type' => 'Tipo contratto',
+	'contract_expiry_date' => 'Scadenza contratto',
+	'notes' => 'Note',
+	'placeholder_notes' => 'Inserisci note',
 ];

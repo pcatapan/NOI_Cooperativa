@@ -6,10 +6,25 @@ use Livewire\Component;
 use App\Models\Shift;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-
+use Carbon\Carbon;
+use App\Enums\PresesenceTypeEnum;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Models;
 
 class Responsible extends Component
 {
+	public $worksiteOverLimitOrdinary;
+	public int $worksiteOverLimitOrdinaryCount;
+	public int $shiftValidated;
+	public int $shiftNotValidated;
+
+	public $worksiteOverLimitExtraordinary;
+	public int $worksiteOverLimitExtraordinaryCount;
+
+	public bool $openModalOrdinary = false;
+	public bool $openModalExtraordinary = false;
+
 	public string $name;
 	public array $tableShifts;
 	public ?int $id = null;
@@ -24,6 +39,7 @@ class Responsible extends Component
 	public $endTime = null;
 	public ?string $note = null;
 	public bool $isExtraordinary = false;
+	public $error = null;
 
 	public $selectedNote;
 
@@ -34,6 +50,42 @@ class Responsible extends Component
 		$this->tableShifts = $this->createTabelShifts();
 		$this->id = $user->id;
 		$this->userEmployee = $user->getEmployeeId();
+
+		$this->shiftValidated = Models\Shift::where('validated', 1)->count();
+		$this->shiftNotValidated = Models\Shift::where('validated', 0)->where('date', '<', Carbon::now())->count();
+
+		$startOfMonth = Carbon::today()->startOfMonth();
+		$today = Carbon::today();
+		$numberOfweek = $today->diffInWeeks($startOfMonth);
+		$this->worksiteOverLimitOrdinary = DB::table('presences')
+			->join('worksites', 'presences.id_worksite', '=', 'worksites.id')
+			->select(
+				DB::raw('ROUND(SUM(presences.minutes_worked) / 60) as total_hours_worked'),
+				'worksites.*'
+			)
+			->where('presences.type', PresesenceTypeEnum::ORDINARY->value)
+			->where('worksites.id_responsable', $this->userEmployee)
+			->whereBetween('presences.date', [$startOfMonth, $today])
+			->groupBy('presences.id_worksite')
+			->havingRaw('total_hours_worked * ? > worksites.total_hours', [$numberOfweek])
+			->get()
+		;
+		$this->worksiteOverLimitOrdinaryCount = $this->worksiteOverLimitOrdinary->count();
+
+		$this->worksiteOverLimitExtraordinary = Models\Presence::join('worksites', 'presences.id_worksite', '=', 'worksites.id')
+			->select(
+				'presences.id_worksite',
+				DB::raw('ROUND(SUM(presences.minutes_worked) / 60) as total_hours_worked'),
+				'worksites.*'
+			)
+			->where('presences.type', PresesenceTypeEnum::EXTRAORDINARY->value)
+			->where('worksites.id_responsable', $this->userEmployee)
+			->whereBetween('presences.date', [$startOfMonth, $today])
+			->groupBy('presences.id_worksite', 'worksites.total_hours')
+			->havingRaw('total_hours_worked * ? > worksites.total_hours', [$numberOfweek])
+			->get();
+		;
+		$this->worksiteOverLimitExtraordinaryCount = $this->worksiteOverLimitExtraordinary->count();
 	}
 
 	public function render()
@@ -43,7 +95,7 @@ class Responsible extends Component
 
 	protected function rules()
 	{
-		return [
+		$rules = [
 			'employee' => 'required',
 			'worksite' => 'required',
 			'date' => 'required',
@@ -52,6 +104,21 @@ class Responsible extends Component
 			'note' => 'nullable|string',
 			'isExtraordinary' => 'required|boolean'
 		];
+
+		$worksite = Models\Worksite::find($this->worksite);
+		$dateStartWeek = Carbon::now()->startOfWeek();
+		$worksiteHoursWorked = Models\Presence::where('id_worksite', $this->worksite)
+			->whereBetween('date', [$dateStartWeek, Carbon::now()])
+			->sum('minutes_worked') / 60
+		;
+		$newWorksiteHoursWorked = $worksiteHoursWorked + (Carbon::parse($this->startTime)->diffInMinutes($this->endTime) / 60);
+		if ($worksite && (($newWorksiteHoursWorked > $worksite->total_hours) || ($newWorksiteHoursWorked > $worksite->total_hours_extraordinary && $this->isExtraordinary))) {
+			session()->flash('error', 'Le ore lavorative superano il limite consentito per questo cantiere.');
+			
+			$rules['error'] = 'required';
+		}
+
+		return $rules;
 	}
 
 	public function createShift()
@@ -101,13 +168,23 @@ class Responsible extends Component
 		return $data;
 	}
 
+	protected function showErrorNotification()
+	{
+		session()->flash('error', Str::ucfirst(__('general.save_error_title')));
+	}
+
 	protected function showSuccessNotification()
 	{
-		$this->notification([
-			'title'       => Str::ucfirst(__('general.save_error_title')),
-			'icon'        => 'error',
-			'timeout'     => 2000,
-			'closeButton' => false,
-		]);
+		session()->flash('success', Str::ucfirst(__('general.save_success_title')));
+	}
+
+	public function toggleModalOrdinary()
+	{
+		$this->openModalOrdinary = !$this->openModalOrdinary;
+	}
+
+	public function toggleModalExtraordinary()
+	{
+		$this->openModalExtraordinary = !$this->openModalExtraordinary;
 	}
 }

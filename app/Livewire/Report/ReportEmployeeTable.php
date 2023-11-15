@@ -3,7 +3,7 @@
 namespace App\Livewire\Report;
 
 use App\Models\Presence;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -21,19 +21,23 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
 use Illuminate\Support\Str;
 
-final class ReportPresencesTable extends PowerGridComponent
+final class ReportEmployeeTable extends PowerGridComponent
 {
     use WithExport;
 
 	public bool $multiSort = true;
+    protected $listeners = ['updateSerach' => 'updateSerach'];
+
+    public $from_date = null;
+    public $to_date = null;
+    public ?int $company = null;
+    public ?int $employee = null;
 
     public function setUp(): array
     {
         if (Auth::user()->role !== UserRoleEnum::ADMIN->value) {
 			abort(403, __('general.403'));
 		}
-
-		$this->persist(['columns', 'filters']);
         //$this->showCheckBox();
 
         return [
@@ -41,8 +45,7 @@ final class ReportPresencesTable extends PowerGridComponent
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
 
-            Header::make()
-                ->showSearchInput(),
+            Header::make(),
 
             Footer::make()
                 ->showPerPage()
@@ -50,10 +53,17 @@ final class ReportPresencesTable extends PowerGridComponent
         ];
     }
 
+    public function updateSerach($filters)
+    {
+        $this->from_date = $filters['from_date'] ? Carbon::parse($filters['from_date']) : null;
+        $this->to_date = $filters['to_date'] ? Carbon::parse($filters['to_date']) : null;
+        $this->company = $filters['company'];
+        $this->employee = $filters['employee'];
+    }
+
     public function datasource(): Builder
     {
-        // Faccio la sommo di tutte le presenza di un determinato mese
-        return Presence::query()
+        $query = Presence::query()
             ->leftjoin('employees', 'presences.id_employee', '=', 'employees.id')
             ->leftjoin('users', 'employees.id_user', '=', 'users.id')
             ->leftjoin('worksites', 'presences.id_worksite', '=', 'worksites.id')
@@ -66,10 +76,31 @@ final class ReportPresencesTable extends PowerGridComponent
                 DB::raw('SUM(minutes_extraordinary) as total_hours_extraordinary')
             )
             ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
-            ->groupBy('presences.id_employee', 'presences.date')
+            ->groupBy('presences.id_employee')
             ->where('absent', false)
-            ->orderBy('date', 'desc');
+            ->orderBy('users.name', 'desc');
+
+        // Applica il filtro per la data iniziale se impostato
+        if (isset($this->from_date)) {
+            $query->whereDate('presences.date', '>=', $this->from_date);
+        }
+
+        // Applica il filtro per la data finale se impostato
+        if (isset($this->to_date)) {
+            $query->whereDate('presences.date', '<=', $this->to_date);
+        }
+
+        if (isset($this->company)) {
+            $query->where('companies.id', $this->company);
+        }
+
+        if (isset($this->employee)) {
+            $query->where('employees.id', $this->employee);
+        }
+
+        return $query;
     }
+
 
     public function relationSearch(): array
     {
@@ -88,21 +119,29 @@ final class ReportPresencesTable extends PowerGridComponent
             ->addColumn('user_surname')
             ->addColumn('user_name')
             ->addColumn('user_name_surname')
-            ->addColumn('date_formatted', function (Presence $model) {
-                return e(Carbon::parse($model->date)->format('d/m/Y'));
-            })
             ->addColumn('total_hours_worked', function (Presence $model) {
-                $interval = CarbonInterval::minutes($model->total_hours_worked);
-                return $interval->cascade()->forHumans();
+                // Imposta un'istanza di Carbon a mezzanotte
+                $startOfDay = Carbon::now()->startOfDay();
+
+                // Aggiungi i minuti lavorati a quella istanza per ottenere la nuova ora
+                $endOfDayWithMinutesWorked = $startOfDay->copy()->addMinutes($model->total_hours_worked);
+
+                // Calcola la differenza in ore tra l'inizio della giornata e il nuovo orario
+                $hoursWorked = $startOfDay->diffInHours($endOfDayWithMinutesWorked, false);
+
+                return $hoursWorked . ' ore';
             })
             ->addColumn('total_hours_extraordinary', function (Presence $model) {
-                $extraordinaryHours = $model->total_hours_extraordinary;
-                if ($extraordinaryHours == 0) {
-                    return "0 ore";
-                } else {
-                    $interval = CarbonInterval::minutes($extraordinaryHours);
-                    return $interval->cascade()->forHumans();
-                }
+                // Imposta un'istanza di Carbon a mezzanotte
+                $startOfDay = Carbon::now()->startOfDay();
+
+                // Aggiungi i minuti lavorati a quella istanza per ottenere la nuova ora
+                $endOfDayWithMinutesWorked = $startOfDay->copy()->addMinutes($model->total_hours_extraordinary);
+
+                // Calcola la differenza in ore tra l'inizio della giornata e il nuovo orario
+                $hoursWorked = $startOfDay->diffInHours($endOfDayWithMinutesWorked, false);
+
+                return $hoursWorked . ' ore';
             })
             ->addColumn('action')
         ;
@@ -111,6 +150,8 @@ final class ReportPresencesTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::action(__('general.action')),
+
             Column::make('ID', 'id_employee')
                 ->hidden(),
             
@@ -125,23 +166,18 @@ final class ReportPresencesTable extends PowerGridComponent
             Column::make('Dipendente', 'user_name_surname')
                 ->sortable(),
 
-            Column::make('Date', 'date_formatted', 'date')
-                ->sortable(),
-
             Column::make('Ore Lavorate', 'total_hours_worked')
                 ->sortable(),
 
             Column::make('Ore Straordinarie', 'total_hours_extraordinary')
                 ->sortable(),
-
-            Column::action('Action')
         ];
     }
 
     public function filters(): array
     {
         return [
-            Filter::datepicker('date'),
+            //
         ];
     }
 
@@ -152,9 +188,11 @@ final class ReportPresencesTable extends PowerGridComponent
 				->slot(Str::ucfirst(__('general.details')))
 				->id()
 				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-				->openModal('report.details', [
-					'employee'	=> $row->id_employee,
-                    'date' => $row->date->format('Y-m-d'),
+				->openModal('report.employee-details', [
+					'employee'	    => $row->id_employee,
+                    'from_date'		=> $this->from_date,
+                    'to_date'		=> $this->to_date,
+                    'company'		=> $this->company,
 			]),
         ];
     }
