@@ -35,4 +35,5 @@ return [
 	'ordinary' => 'Ordinario',
 	'extraordinary' => 'Straordinario',
 	'motivation_absent' => 'Motivazione assenza',
+	'night_shift' => 'Turno notturno',
 ];

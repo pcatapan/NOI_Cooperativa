@@ -45,7 +45,7 @@
 			wire:model.defer="worksite"
 			placeholder="{{ \Str::ucfirst(__('worksite.placeholder_name')) }}"
 			:async-data="route('api.worksite')"
-			option-label="name"
+			option-label="cod"
 			option-value="id"
 		/>
 	@endif

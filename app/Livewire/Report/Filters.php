@@ -18,7 +18,7 @@ class Filters extends Component
 
 	public bool $notShowEmployee;
 	public bool $isResponsible;
-	public int $userId;
+	public ?int $userId;
 
 	public function mount($notShowEmployee = false)
 	{
