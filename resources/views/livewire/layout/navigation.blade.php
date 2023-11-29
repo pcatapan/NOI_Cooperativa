@@ -51,6 +51,9 @@ new class extends Component
                         <x-nav-link :href="route('shifts.not_validated')" :active="request()->routeIs('shifts.not_validated')" wire:navigate>
                            {{ __('navigation.shifts_not_validated') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('shifts.future')" :active="request()->routeIs('shifts.future')" wire:navigate>
+                           {{ __('navigation.shifts_future') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('presences.index')" :active="request()->routeIs('presences.index')" wire:navigate>
                            {{ __('navigation.presence') }}
                         </x-nav-link>

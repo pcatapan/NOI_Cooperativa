@@ -12,13 +12,18 @@ class Filters extends Component
 {
 	public $from_date = null;
 	public $to_date = null;
+	public ?int $worksite = null;
 	public ?int $company = null;
 	public ?int $employee = null;
 
 	public bool $notShowEmployee;
+	public bool $isResponsible;
+	public int $userId;
 
 	public function mount($notShowEmployee = false)
 	{
+		$this->userId = Auth::user()->getEmployeeId();
+		$this->isResponsible = Auth::user()->role == UserRoleEnum::RESPONSIBLE->value;
 		$this->notShowEmployee = $notShowEmployee;
 	}
 
@@ -34,6 +39,7 @@ class Filters extends Component
 			'from_date' => $this->from_date,
 			'to_date' => $this->to_date,
 			'company' => $this->company,
+			'worksite' => $this->worksite,
 			'employee' => $this->employee,
 		]);
 

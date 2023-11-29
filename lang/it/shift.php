@@ -32,4 +32,7 @@ return [
 	'duplicate_title' => 'Duplica turno',
 	'duplicate_from' => 'Duplica dal',
 	'duplicate_to' => 'Duplica al',
+	'ordinary' => 'Ordinario',
+	'extraordinary' => 'Straordinario',
+	'motivation_absent' => 'Motivazione assenza',
 ];

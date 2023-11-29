@@ -26,7 +26,4 @@ Route::get('/worksite/{responsable}', [App\Http\Controllers\WorksiteController::
 
 Route::middleware('auth')->group(function () {
 
-    /**
-     * Company
-     */
 });

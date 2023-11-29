@@ -48,7 +48,7 @@
 				<div class="flex flex-row gap-8 mb-6">
                     <x-card shadow-md class="p-2 m-2 items-center">
                         <div class="flex justify-between text-gray-700 dark:text-white font-semibold">
-                            <span>{{__('general.number_of_elements', ['elements' => 'cantieri oltre la soglia ordinaria'])}}</span>
+                            <span>{{__('general.number_of_elements', ['elements' => 'impianti oltre la soglia ordinaria'])}}</span>
                             @if($worksiteOverLimitOrdinaryCount > 0)
                                 <x-button primary label="{{__('general.view')}}" wire:click="toggleModalOrdinary"/>
                             @endif
@@ -64,7 +64,7 @@
 
                     <x-card shadow-md class="p-2 m-2 items-center">
                         <div class="flex justify-between text-gray-700 dark:text-white font-semibold">
-                            <span>{{__('general.number_of_elements', ['elements' => 'cantieri oltre la soglia straordinaria'])}}</span>
+                            <span>{{__('general.number_of_elements', ['elements' => 'impianti oltre la soglia straordinaria'])}}</span>
                             @if($worksiteOverLimitExtraordinaryCount > 0)
                                 <x-button primary label="{{__('general.view')}}" wire:click="toggleModalExtraordinary"/>
                             @endif
@@ -201,7 +201,7 @@
     </x-modal.card>
 
     {{-- Modale cantieri sopra limite ordinario --}}
-	<x-modal.card title="{{ \Str::ucfirst(__('general.title', ['title' => 'Cantieri sopra il limite ordinario'])) }}" blur wire:model.defer="openModalOrdinary" align="center">
+	<x-modal.card title="{{ \Str::ucfirst(__('general.title', ['title' => 'Impianti sopra il limite ordinario'])) }}" blur wire:model.defer="openModalOrdinary" align="center">
 		<table class="min-w-max w-full mt-2">
 			<thead>
 				<tr>
@@ -225,7 +225,7 @@
     </x-modal.card>
 
 	{{-- Modale cantieri sopra limite straordinario --}}
-	<x-modal.card title="{{ \Str::ucfirst(__('general.title', ['title' => 'Cantieri sopra il limite ordinario'])) }}" blur wire:model.defer="openModalExtraordinary" align="center">
+	<x-modal.card title="{{ \Str::ucfirst(__('general.title', ['title' => 'Impianti sopra il limite ordinario'])) }}" blur wire:model.defer="openModalExtraordinary" align="center">
 		<table class="min-w-max w-full mt-2">
 			<thead>
 				<tr>

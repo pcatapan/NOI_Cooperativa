@@ -29,6 +29,27 @@
 		/>
 	@endif
 
+	{{-- Seleziona cantiere --}}
+	@if ($isResponsible)
+		<x-select
+			label="{{ \Str::ucfirst(__('report.worksite')) }}"
+			wire:model.defer="worksite"
+			placeholder="{{ \Str::ucfirst(__('worksite.placeholder_name')) }}"
+			:async-data="route('api.worksite_by_responsable', ['responsable' => $userId])"
+			option-label="cod"
+			option-value="id"
+		/>
+	@else
+		<x-select
+			label="{{ \Str::ucfirst(__('report.worksite')) }}"
+			wire:model.defer="worksite"
+			placeholder="{{ \Str::ucfirst(__('worksite.placeholder_name')) }}"
+			:async-data="route('api.worksite')"
+			option-label="name"
+			option-value="id"
+		/>
+	@endif
+
 	{{-- Seleziona Azienda --}}
 	<x-select
 		label="{{ \Str::ucfirst(__('report.company')) }}"

@@ -5,6 +5,9 @@
 	</div>
 	<div class="gap-2 flex flex-col">
 
+		{{ implode(', ', $shiftToDuplicate) }}
+
+		{{-- Turno --}
 		{{-- Dal, al --}}
 		<div class="w-full flex flex-col sm:flex-row sm:gap-9 gap-2">
 			<div class="w-1/2">

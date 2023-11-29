@@ -51,8 +51,15 @@ class Responsible extends Component
 		$this->id = $user->id;
 		$this->userEmployee = $user->getEmployeeId();
 
-		$this->shiftValidated = Models\Shift::where('validated', 1)->count();
-		$this->shiftNotValidated = Models\Shift::where('validated', 0)->where('date', '<', Carbon::now())->count();
+		$this->shiftValidated = Models\Shift::where('validated', 1)
+			->where('id_employee', $this->userEmployee)
+			->count()
+		;
+		$this->shiftNotValidated = Models\Shift::where('validated', 0)
+			->where('date', '<', Carbon::now())
+			->where('id_employee', $this->userEmployee)
+			->count()
+		;
 
 		$startOfMonth = Carbon::today()->startOfMonth();
 		$today = Carbon::today();

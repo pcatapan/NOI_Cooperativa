@@ -42,7 +42,7 @@ final class ShiftTodayTable extends PowerGridComponent
 				->striped()
 				->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
 
-			Header::make()->showSearchInput(),
+			Header::make(),
 
 			Footer::make()
 				->showPerPage()
@@ -138,6 +138,17 @@ final class ShiftTodayTable extends PowerGridComponent
 	public function filters(): array
 	{
 		return [
+			Filter::inputText('user_name_surname')
+				->operators(['contains'])
+				->builder(function (Builder $query, $value) {
+					// Verifica che $value sia un array e che la chiave 'value' sia impostata e non vuota
+					if (is_array($value) && !empty($value['value'])) {
+						return $query->whereRaw("CONCAT(users.name, ' ', users.surname) LIKE ?", ["%{$value['value']}%"]);
+					}
+
+					return $query;
+				}),
+
 			Filter::datepicker('date'),
 		];
 	}

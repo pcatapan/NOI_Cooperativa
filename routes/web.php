@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
      */
     //Route::get('shifts', fn () => view('livewire.shift.index'))->name('shifts.index');
     Route::get('/shift-not-validated', fn () => view('livewire.shift.not-validated'))->name('shifts.not_validated');
+    Route::get('/shift-future', fn () => view('livewire.shift.future'))->name('shifts.future');
 
     /**
      * Presence

@@ -60,13 +60,15 @@ class EditModal extends ModalComponent
 			$this->shift->save();
 
 			if($this->shift->validated) {
-				$this->shift->presences->date = $this->date;
-				$this->shift->presences->time_entry = $this->start;
-				$this->shift->presences->time_exit = $this->end;
-				$this->shift->presences->is_extraordinary = $this->isExtraordinary ? PresesenceTypeEnum::EXTRAORDINARY->value : PresesenceTypeEnum::ORDINARY->value;
-				$this->shift->presences->minutes_worked = $this->shift->presences->calculateMinutesWorked();
-
-				$this->shift->presences->save();
+				$this->shift->presence->date = $this->date;
+				$this->shift->presence->time_entry = $this->start;
+				$this->shift->presence->time_exit = $this->end;
+				$this->shift->presence->type = $this->isExtraordinary ? PresesenceTypeEnum::EXTRAORDINARY->value : PresesenceTypeEnum::ORDINARY->value;
+				$this->shift->presence->note = $this->shift->note;
+				
+				$this->shift->presence->save();
+				
+				$this->shift->presence->calculateMinutesWorked();
 			}
 		} catch (\Exception $e) {
 			$this->showErrorNotification();

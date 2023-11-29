@@ -10,6 +10,8 @@ use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\Attributes\On;
 
 class Duplicate extends ModalComponent
 {
@@ -20,10 +22,9 @@ class Duplicate extends ModalComponent
 	public Carbon $fromDate;
 	public Carbon $toDate;
 
-
-    public function mount(Shift $shift)
+    public function mount(Array $shifts)
     {
-		$this->shiftToDuplicate = $shift;
+		$this->shiftToDuplicate = $shifts;
 		$this->fromDate = Carbon::tomorrow();
 		$this->toDate = Carbon::tomorrow()->addDays(7);
         
@@ -47,21 +48,19 @@ class Duplicate extends ModalComponent
 
         $this->validate();
 
-		$shiftsToInsert = [];
+		$shiftToDuplicate = collect($this->shiftToDuplicate)->map(function ($shift) {
+			return Shift::find($shift);
+		});
 
 		try {
 			foreach ($this->fromDate->daysUntil($this->toDate) as $date) {
-				$shiftData = $this->shiftToDuplicate->toArray();
-				
-				unset($shiftData['id']);
-				unset($shiftData['created_at']);
-				unset($shiftData['updated_at']);
+				foreach ($shiftToDuplicate as $shift) {
+					$newShift = $shift->replicate(['id', 'created_at', 'updated_at']);
 
-				$shiftData['date'] = $date->format('Y-m-d');
-				$shiftsToInsert[] = $shiftData;
+					$newShift->date = $date->format('Y-m-d');
+					$newShift->save();
+				}
 			}
-	
-			Shift::insert($shiftsToInsert);
 	
 			$this->closeModalWithEvents(['pg:eventRefresh-default']);
 			$this->showSuccessNotification();

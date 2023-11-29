@@ -65,8 +65,7 @@ class Presence extends Model
         $timeEntry = \Carbon\Carbon::parse($timeEntry);
         $timeExit = \Carbon\Carbon::parse($timeExit);
 
-        $minutesWorked = $timeExit->diffInMinutes($timeEntry);
-
-        return $minutesWorked;
+        $this->minutes_worked = $timeExit->diffInMinutes($timeEntry);
+        $this->save();
     }
 }

@@ -21,11 +21,9 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
 use Illuminate\Support\Str;
 
-final class ShiftTable extends PowerGridComponent
+final class ShiftFutureTable extends PowerGridComponent
 {
 	use WithExport;
-
-	// TODO : questa va cambiato con la tab presenze
 
 	public bool $multiSort = true;
 	public $worksite;
@@ -37,14 +35,14 @@ final class ShiftTable extends PowerGridComponent
 		}
 
 		$this->persist(['columns', 'filters']);
+		$this->showCheckBox('shift_id');
 
 		return [
 			Exportable::make('export')
 				->striped()
 				->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
 
-			Header::make()
-				->showSearchInput(),
+			Header::make(),
 
 			Footer::make()
 				->showPerPage()
@@ -59,7 +57,29 @@ final class ShiftTable extends PowerGridComponent
                 ->slot(Str::ucfirst(__('shift.create')))
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->openModal('shift.add-modal', [$this->worksite->id]),
+	
+			Button::add('duplicate')
+				->slot(__('shift.duplicate')  . '(<span x-text="window.pgBulkActions.count(\'' . $this->tableName . '\')"></span>)')
+				->class('inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest transition ease-in-out duration-150
+                     bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring ring-blue-200 disabled:opacity-25
+                     dark:bg-blue-700 dark:hover:bg-blue-800 dark:border-blue-800')
+				->dispatch('duplicate', []),
         ];
+    }
+
+	protected function getListeners(): array
+    {
+        return array_merge(
+            parent::getListeners(), [
+                'duplicate',
+            ]);
+    }
+
+    public function duplicate(): void
+    {
+        $this->dispatch('openModal', 'shift.duplicate', [
+            'shifts'                 => $this->checkboxValues,
+        ]);
     }
 
 	public function datasource(): Builder
@@ -75,15 +95,17 @@ final class ShiftTable extends PowerGridComponent
 				$worksite->on('shifts.id_worksite', 'worksites.id');
 			})
 			->select(
+				'shifts.id as shift_id',
 				'shifts.*',
 				'users.name as user_name',
 				'users.surname as user_surname',
 				'worksites.cod as worksite_cod'
 			)
             ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
+			->where('shifts.date', '>', Carbon::now()->format('Y-m-d'))
 			->where('worksites.id', $this->worksite->id)
-			->where('validated', 1)
-			->orderBy('date', 'desc');
+			->where('validated', 0)
+			->orderBy('shifts.date', 'desc');
 		;
 	}
 
@@ -158,6 +180,17 @@ final class ShiftTable extends PowerGridComponent
 	public function filters(): array
 	{
 		return [
+			Filter::inputText('user_name_surname')
+				->operators(['contains'])
+				->builder(function (Builder $query, $value) {
+					// Verifica che $value sia un array e che la chiave 'value' sia impostata e non vuota
+					if (is_array($value) && !empty($value['value'])) {
+						return $query->whereRaw("CONCAT(users.name, ' ', users.surname) LIKE ?", ["%{$value['value']}%"]);
+					}
+
+					return $query;
+				}),
+
 			Filter::boolean('is_extraordinary')->label(__('general.yes'), __('general.no')),
 
 			Filter::datepicker('date'),
@@ -181,13 +214,6 @@ final class ShiftTable extends PowerGridComponent
 				->openModal('show-content-modal', [
 					'title'	=> __('shift.notes'),
 					'content'	=> $row->note,
-			]),
-
-			Button::add('duplicate')
-				->slot(Str::ucfirst(__('shift.duplicate')))
-				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-grey-600 dark:ring-offset-pg-primary-800 dark:text-black dark:bg-grey-700')
-				->openModal('shift.duplicate', [
-					'shift'	=> $row->id,
 			]),
 
 			Button::add('delete')

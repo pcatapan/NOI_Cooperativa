@@ -11,9 +11,9 @@
 				@if (Illuminate\Support\Facades\Auth::user()->role === App\Enums\UserRoleEnum::RESPONSIBLE->value)
 					@foreach(Illuminate\Support\Facades\Auth::user()->employee->worksitesAsResponsible as $worksite)
 						<h2 class="font-semibold text-center mt-2 text-xl text-gray-800 dark:text-gray-200 leading-tight">
-							Tutti i turni da validare del impianto {{ $worksite->cod }}
+							Tutti i turni futuri del impianto {{ $worksite->cod }}
 						</h2>
-						<livewire:shift.shift-not-validated-table :worksite="$worksite"/>
+						<livewire:shift.shift-future-table :worksite="$worksite"/>
 					@endforeach
 				@endif
 			</div>
