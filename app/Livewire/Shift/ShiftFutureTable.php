@@ -249,7 +249,7 @@ final class ShiftFutureTable extends PowerGridComponent
 			,
 
 			Rule::button('alert_night')
-                ->when(fn($row) => Carbon::parse($row->start)->format('H:i') >= '22:00' && Carbon::parse($row->end)->format('H:i') <= '06:00')
+				->when(fn($row) => Carbon::parse($row->start)->format('H:i') <= '22:00' && Carbon::parse($row->end)->format('H:i') >= '06:00')
                 ->hide()
 			,
 		];
