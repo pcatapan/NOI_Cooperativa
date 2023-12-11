@@ -113,3 +113,8 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
     </form>
 </div>
+
+<script>
+    // Rimuove un elemento specifico
+    localStorage.removeItem('alreadyReloaded');
+</script>
