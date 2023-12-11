@@ -37,4 +37,5 @@ return [
 	'extraordinary' => 'Straordinario',
 	'motivation_absent' => 'Motivazione assenza',
 	'night_shift' => 'Turno notturno',
+	'holidat_shift' => 'Turno festivo',
 ];

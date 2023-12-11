@@ -71,7 +71,7 @@ class Employee extends Component
 			$isHolidayMatch = $holiday->is_recurring ? $shiftDateFormatMD == $holidayDateFormatMD : $shiftDateFormatYMD == $holidayDateFormatYMD;
 
 			if ($isHolidayMatch) {
-				return $holiday->is_national ? 'holiday-national' : 'holiday-local';
+				return $holiday->is_national || $holiday->date->isWeekend() ? 'holiday-national' : 'holiday-local';
 			}
 		}
 

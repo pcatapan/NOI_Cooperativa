@@ -1,7 +1,7 @@
 <!-- Leggenda -->
 <div class="legend py-4">
 	<h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200">Legenda:</h3>
-	<div class="flex flex-wrap">
+	<div class="flex flex-wrap sm:flex-row flex-col">
 		<div class="flex items-center mr-6 mb-2">
 			<span class="block w-4 h-4 bg-ffcc00 dark:bg-ffcc00"></span>
 			<span class="ml-2 text-sm text-gray-800 dark:text-gray-200">{{ __('holiday.nationale_holiday') }}</span>

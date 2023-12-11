@@ -16,6 +16,9 @@ class EmployeePresencesMonthly extends Component
 	public string $monthTranslate;
 	public $now;
 	public Collection $presences;
+	public int $totalMinutesWorked = 0;
+	public int $totalMinutesExtraordinary = 0;
+	public int $totalMinutesAbsence = 0;
 
 	public function mount()
 	{
@@ -50,12 +53,17 @@ class EmployeePresencesMonthly extends Component
 
 	protected function getPresencesByMonth()
 	{
-		return $this->employee->presences()
+		$presences = $this->employee->presences()
 			->whereMonth('date', $this->now->month)
-			->where('absent', false)
 			->orderBy('date', 'asc')
 			->get()
 		;
+
+		$this->totalMinutesWorked = $presences->where('absence', 0)->where('type', 'ordinary')->sum('minutes_worked');
+		$this->totalMinutesExtraordinary = $presences->where('absence', 0)->where('type', 'extraordinary')->sum('minutes_extraordinary');
+		$this->totalMinutesAbsence = $presences->where('absence', 1)->sum('minutes_worked');
+
+		return $presences->where('absence', 0);
 	}
 
 	public function render()

@@ -19,8 +19,8 @@ class UtilsServices
 
 			$isHolidayMatch = $holiday->is_recurring ? $shiftDateFormatMD == $holidayDateFormatMD : $shiftDateFormatYMD == $holidayDateFormatYMD;
 
-			if ($isHolidayMatch) {
-				return $holiday->is_national ? 'holiday-national' : 'holiday-local';
+			if ($isHolidayMatch || $date->isWeekend()) {
+				return $holiday->is_national || $date->isWeekend() ? 'holiday-national' : 'holiday-local';
 			}
 		}
 

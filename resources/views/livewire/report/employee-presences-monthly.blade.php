@@ -25,11 +25,18 @@
 	</div>
 
 	<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-		@include('components.legend')
+		<div class="flex justify-between">
+			@include('components.legend')
 
+			<div class="flex sm:items-center gap-4 sm:flex-row flex-col justify-center">
+				<p class="dark:text-white">Totale ore lavorate: {{ round($totalMinutesWorked / 60) }}</p>
+				<p class="dark:text-white">Totale ore straordinarie: {{ round($totalMinutesExtraordinary / 60) }}</p>
+				<p class="dark:text-white">Totale ore permessi: {{ round($totalMinutesAbsence / 60) }}</p>
+			</div>
+		</div>
 
-		<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-			<table class="table-auto w-full">
+		<div class="w-full overflow-x-auto hidden md:block">
+			<table class="min-w-max w-full">
 				<thead>
 					<tr>
 						<th class="px-4 py-2 dark:text-white border-b-2">{{ __('report.date') }}</th>
@@ -59,6 +66,26 @@
 					@endif
 				</tbody>
 			</table>
+		</div>
+
+		{{-- Tabella Mobile --}}
+		<div class="md:hidden flex flex-col space-y-2">
+			@if($presences->isEmpty())
+				<div class="bg-white dark:bg-gray-800 rounded p-2 shadow flex flex-col">
+					<div class="text-sm dark:text-white flex justify-between">Nessun dato presente</div>
+				</div>
+			@else
+				@foreach ($presences as $presence)
+					<div class="bg-white dark:bg-gray-800 rounded p-2 shadow flex flex-col">
+						<div class="text-sm dark:text-white flex justify-between">Data: <span class="dark:text-gray-300">{{ $presence->date->format('d/m') }}</span></div>
+						<div class="text-sm dark:text-white flex justify-between">Ora di Entrata: <span class="dark:text-gray-300">{{ $presence->time_entry }}</span></div>
+						<div class="text-sm dark:text-white flex justify-between">Ora di Uscita: <span class="dark:text-gray-300">{{ $presence->time_exit }}</span></div>
+						<div class="text-sm dark:text-white flex justify-between">Ore Lavorate: <span class="dark:text-gray-300">{{ round($presence->minutes_worked / 60) }}</span></div>
+						<div class="text-sm dark:text-white flex justify-between">Tipo: <span class="dark:text-gray-300">{{ $presence->type == 'ordinary' ? __('shift.ordinary') : __('shift.extraordinary') }}</span></div>
+						<div class="text-sm dark:text-white flex justify-between">Cantiere: <span class="dark:text-gray-300">{{ $presence->worksite_cod }}</span></div>
+					</div>
+				@endforeach
+			@endif
 		</div>
 	</div>
 </div>

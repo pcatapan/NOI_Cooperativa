@@ -5,6 +5,7 @@ namespace App\Livewire\Presence;
 use App\Enums\PresenceAbsentTypeEnum;
 use App\Enums\PresesenceTypeEnum;
 use App\Models\Presence;
+use App\Http\Services\UtilsServices;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -219,7 +220,13 @@ final class AbsenceTable extends PowerGridComponent
 				<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
 				</svg>')
                 ->class('items-center flex justify-center h-full')
-                ->tooltip(__('shift.night_shift'))
+                ->tooltip(__('shift.night_shift')),
+
+			Button::make('alert_holiday', '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+					</svg>')
+				->class('items-center flex justify-center h-full')
+				->tooltip(__('shift.holidat_shift'))
 		];
 	}
 
@@ -238,6 +245,11 @@ final class AbsenceTable extends PowerGridComponent
 
 			Rule::button('alert_night')
 				->when(fn($row) => Carbon::parse($row->start)->format('H:i') <= '22:00' && Carbon::parse($row->end)->format('H:i') >= '06:00')
+                ->hide()
+			,
+
+			Rule::button('alert_holiday')
+				->when(fn($row) => UtilsServices::isHoliday($row->worksite, $row->date) == false)
                 ->hide()
 			,
 		];

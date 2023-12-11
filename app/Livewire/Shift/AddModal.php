@@ -4,10 +4,11 @@ namespace App\Livewire\Shift;
 
 use WireUi\Traits\Actions;
 use App\Enums\UserRoleEnum;
-use App\Models\Shift;
+use App\Models;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
+use Carbon\Carbon;
 
 class AddModal extends ModalComponent
 {
@@ -47,7 +48,7 @@ class AddModal extends ModalComponent
 	{
 		$this->validate();
 
-		$shift = new Shift();
+		$shift = new Models\Shift();
 		$shift->id_employee = $this->employee;
 		$shift->id_worksite = $this->worksite;
 		$shift->date = $this->date;
@@ -67,7 +68,7 @@ class AddModal extends ModalComponent
 	{
 		$this->validate();
 
-		$shift = new Shift();
+		$shift = new Models\Shift();
 		$shift->id_employee = $this->employee;
 		$shift->id_worksite = $this->worksite;
 		$shift->date = $this->date;
@@ -87,7 +88,7 @@ class AddModal extends ModalComponent
 
     protected function rules()
 	{
-        return [
+        $rules = [
 			'employee' => 'required',
 			'worksite' => 'required',
 			'date' => 'required|date',
@@ -97,6 +98,21 @@ class AddModal extends ModalComponent
 			'note' => 'nullable|string',
 			'isExtraordinary' => 'required|boolean'
         ];
+
+		$worksite = Models\Worksite::find($this->worksite);
+		$dateStartWeek = Carbon::now()->startOfWeek();
+		$worksiteHoursWorked = Models\Presence::where('id_worksite', $this->worksite)
+			->whereBetween('date', [$dateStartWeek, Carbon::now()])
+			->sum('minutes_worked') / 60
+		;
+		$newWorksiteHoursWorked = $worksiteHoursWorked + (Carbon::parse($this->startTime)->diffInMinutes($this->endTime) / 60);
+		if ($worksite && (($newWorksiteHoursWorked > $worksite->total_hours) || ($newWorksiteHoursWorked > $worksite->total_hours_extraordinary && $this->isExtraordinary))) {
+			session()->flash('error', 'Le ore lavorative superano il limite consentito per questo cantiere.');
+			
+			$rules['error'] = 'required';
+		}
+
+		return $rules;
     }
 
     protected function shouldNotAllowDeletion()
