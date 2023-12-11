@@ -82,6 +82,8 @@ function initializeCalendar() {
 			events: @json($events),
 		});
 		calendar.render();
+		calendar.updateSize();
+		
 
 		setTimeout(function() {
 			calendar.updateSize();
