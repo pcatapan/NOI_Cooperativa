@@ -40,54 +40,49 @@ if (!localStorage.getItem('alreadyReloaded')) {
 	window.location.reload();
 } else {
 	initializeCalendar();
+	document.addEventListener('livewire:initialized', function () {
+		initializeCalendar();
+	});
 }
-
-document.addEventListener('livewire:initialized', function () {
-	initializeCalendar();
-});
 		
 function initializeCalendar() {
 	var calendarEl = document.getElementById('calendar');
-	if (calendarEl) {
-		// Distruggi l'istanza esistente di FullCalendar se esiste
-		var calendar = new FullCalendar.Calendar(calendarEl, {
-			timeZone: 'Italy/Rome',
-			locale: 'it',
-			firstDay: 1, 
-			initialView: 'timeGridWeek',
-			headerToolbar: {
-				left: 'prev,next',
-				center: 'title',
-				right: 'timeGridWeek,timeGridDay' // user can switch between the two
-			},
-			buttonText: {
-				today: 'oggi',
-				month: 'mese',
-				week: 'settimana',  // tradotto in italiano
-				day: 'giorno'  // tradotto in italiano
-			},
-			slotLabelFormat: {
-				hour: '2-digit',
-				minute: '2-digit',
-				omitZeroMinute: false,
-				meridiem: 'short'
-			},
-			allDaySlot: false,
-			views: {
-				timeGridWeek: { // name of view
-					titleFormat: { year: 'numeric', month: 'long', day: '2-digit' }
-					// other view-specific options here
-					}
-			},
-			events: @json($events),
-		});
-		calendar.render();
-		calendar.updateSize();
-		
 
-		setTimeout(function() {
-			calendar.updateSize();
-		}, 10);
-	}
+	var calendar = new FullCalendar.Calendar(calendarEl, {
+		timeZone: 'Italy/Rome',
+		locale: 'it',
+		firstDay: 1, 
+		initialView: 'timeGridWeek',
+		headerToolbar: {
+			left: 'prev,next',
+			center: 'title',
+			right: 'timeGridWeek,timeGridDay' // user can switch between the two
+		},
+		buttonText: {
+			today: 'oggi',
+			month: 'mese',
+			week: 'settimana',  // tradotto in italiano
+			day: 'giorno'  // tradotto in italiano
+		},
+		slotLabelFormat: {
+			hour: '2-digit',
+			minute: '2-digit',
+			omitZeroMinute: false,
+			meridiem: 'short'
+		},
+		allDaySlot: false,
+		views: {
+			timeGridWeek: { // name of view
+				titleFormat: { year: 'numeric', month: 'long', day: '2-digit' }
+				// other view-specific options here
+				}
+		},
+		events: @json($events),
+	});
+	calendar.render();
+
+	setTimeout(function() {
+		calendar.updateSize();
+	}, 10);
 }
 </script>
