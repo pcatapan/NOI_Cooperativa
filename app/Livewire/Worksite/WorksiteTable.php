@@ -41,8 +41,6 @@ final class WorksiteTable extends PowerGridComponent
 
 		//$this->persist(['columns', 'filters']);
 
-        //$this->showCheckBox();
-
         return [
             Exportable::make('export')
                 ->striped()
@@ -96,7 +94,7 @@ final class WorksiteTable extends PowerGridComponent
             'company' => [
                 'companies.name',
             ],
-            'employee' => [
+            'employees' => [
                 'users.name',
                 'users.surname'
             ],

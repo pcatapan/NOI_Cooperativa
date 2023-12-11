@@ -3,7 +3,7 @@
 return [
 	'details_title' => 'Dettagli di :name',
 	'date' => 'Data',
-	'time_etry' => 'Ora di entrata',
+	'time_entry' => 'Ora di entrata',
 	'time_exit' => 'Ora di uscita',
 	'worked' => 'Ore lavorate',
 	'extraordinary' => 'Tipo di orario',
@@ -18,4 +18,5 @@ return [
 	'hours_config' => 'Ore configurate',
 	'diff' => 'Differenza',
 	'over_limit' => 'Oltre il limite',
+	'empty' => 'Nessun dato da visualizzare',
 ];

@@ -13,6 +13,8 @@
 		<div class="w-full flex flex-col sm:flex-row sm:gap-9 gap-2">
 			<div class="w-full">
 				<x-datetime-picker
+					x-data="{}"
+					x-init="function() {const modalElement = document.getElementById('modal-container');if (modalElement) {modalElement.classList.remove('overflow-hidden');}}"
 					label="{{ \Str::ucfirst(__('shift.date')) }}"
 					placeholder="{{ \Str::ucfirst(__('shift.date_placeholder')) }}"
 					display-format="YYYY-MM-DD"
@@ -26,6 +28,8 @@
 		<div class="w-full flex flex-col sm:flex-row sm:gap-9 gap-2">
 			<div class="sm:w-1/2 w-full">
 				<x-time-picker
+					x-data="{}"
+					x-init="function() {const modalElement = document.getElementById('modal-container');if (modalElement) {modalElement.classList.remove('overflow-hidden');}}"
 					label="{{ \Str::ucfirst(__('shift.start_time')) }}"
 					placeholder="{{ \Str::ucfirst(__('shift.start_time_placeholder')) }}"
 					format="24"
@@ -34,6 +38,8 @@
 			</div>
 			<div class="sm:w-1/2 w-full">
 				<x-time-picker
+					x-data="{}"
+					x-init="function() {const modalElement = document.getElementById('modal-container');if (modalElement) {modalElement.classList.remove('overflow-hidden');}}"
 					label="{{ \Str::ucfirst(__('shift.end_time')) }}"
 					placeholder="{{ \Str::ucfirst(__('shift.end_time_placeholder')) }}"
 					format="24"

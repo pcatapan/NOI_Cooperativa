@@ -14,4 +14,6 @@ return [
 	'report_worksites' => 'Report Impianti',
 	'presence' => 'Presenze',
 	'absence' => 'Assenze',
+	'config' => 'Configurazione',
+	'holidays' => 'Festività',
 ];

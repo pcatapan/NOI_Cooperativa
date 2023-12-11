@@ -35,6 +35,7 @@ class Presence extends Model
 
     protected $appends = [
         'worksite_cod',
+        'holiday',
     ];
 
     public function employee()
@@ -55,6 +56,25 @@ class Presence extends Model
     public function getWorksiteCodAttribute()
     {
         return $this->worksite->cod;
+    }
+
+    public function getHolidayAttribute()
+    {
+		$holidays = $this->worksite->holidays;
+
+		$shiftDateFormatMD = $this->date->format('m-d');
+		$shiftDateFormatYMD = $this->date->format('Y-m-d');
+
+		foreach ($holidays as $holiday) {
+			$holidayDateFormatMD = $holiday->date->format('m-d');
+			$holidayDateFormatYMD = $holiday->date->format('Y-m-d');
+
+			$isHolidayMatch = $holiday->is_recurring ? $shiftDateFormatMD == $holidayDateFormatMD : $shiftDateFormatYMD == $holidayDateFormatYMD;
+
+			if ($isHolidayMatch) {
+				return $holiday->is_national ? 'holiday-national' : 'holiday-local';
+			}
+		}
     }
 
     public function calculateMinutesWorked()

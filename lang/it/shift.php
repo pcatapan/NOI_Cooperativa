@@ -6,6 +6,7 @@ return [
 	'worksite' => 'Cantiere',
 	'worksite_placeholder' => 'Cantiere 1',
 	'date' => 'Data',
+	'type' => 'Tipo',
 	'date_placeholder' => '01/01/2021',
 	'start_time' => 'Ora inizio',
 	'start_time_placeholder' => '08:00',

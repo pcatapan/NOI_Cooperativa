@@ -3,12 +3,10 @@
 namespace App\Livewire\Report;
 
 use WireUi\Traits\Actions;
-use App\Enums\UserRoleEnum;
 use App\Models\Employee;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use App\Http\Services\UtilsServices;
 use LivewireUI\Modal\ModalComponent;
 use Carbon\Carbon;
 
@@ -22,6 +20,7 @@ class EmployeeDetails extends ModalComponent
 	public Employee $employee;
 	public $from_date = null;
 	public $to_date = null;
+	public ?int $worksite = null;
 	public ?int $company = null;
 
 	protected static array $maxWidths = [
@@ -42,9 +41,10 @@ class EmployeeDetails extends ModalComponent
 		return '3xl';
 	}
 
-	public function mount(Employee $employee, $from_date = null, $to_date = null, $company = null)
+	public function mount(Employee $employee, $worksite = null, $from_date = null, $to_date = null, $company = null)
     {
 		$this->employee = $employee;
+		$this->worksite = $worksite;
 		$this->name = $employee->full_name;
 		$this->from_date = $from_date ? Carbon::parse($from_date) : null;
 		$this->to_date = $to_date ? Carbon::parse($to_date) : null;
@@ -55,7 +55,8 @@ class EmployeeDetails extends ModalComponent
 			->with('worksite')
 			->when($this->from_date, fn($query) => $query->whereDate('date', '>=', $this->from_date))
 			->when($this->to_date, fn($query) => $query->whereDate('date', '<=', $this->to_date))
-			->when($this->company, fn($query) => $query->whereHas('worksite', fn($q) => $q->where('company_id', $this->company)))
+			->when($this->company, fn($query) => $query->whereHas('worksite', fn($q) => $q->where('id_company', $this->company)))
+			->when($this->worksite, fn($query) => $query->where('id_worksite', $this->worksite))
 		;
 
 		$this->presences = $query->get()->map(function ($presence) {
@@ -74,7 +75,8 @@ class EmployeeDetails extends ModalComponent
 			'start' => $presence->time_entry_extraordinary ?: $presence->time_entry,
 			'end' => $presence->time_exit_extraordinary ?: $presence->time_exit,
 			'worked' => $worked,
-			'extraordinary' => $presence->time_entry_extraordinary ? 'straordinario' : 'normale'
+			'extraordinary' => $presence->time_entry_extraordinary ? 'straordinario' : 'normale',
+			'holiday' => UtilsServices::isHoliday($presence->worksite, $presence->date),
 		];
 	}
 

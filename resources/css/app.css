@@ -21,8 +21,12 @@
     border: none;
 }
 
+.dark a.fc-col-header-cell-cushion{
+    color: #fff;
+}
+
 .fc-day-today {
-    background-color: #ffe0b2 !important;
+    background-color: gray !important;
 }
 
 .fc-header-toolbar {
@@ -81,5 +85,62 @@ a.fc-col-header-cell-cushion{
 }
 
 .presence {
-    background-color: green;
+    background-color: #90ee90;
+    color: #000000; /* Testo nero */
+    border: 1px solid #90ee90;
+}
+
+.shift {
+    background-color: #add8e6;
+    color: #000000; /* Testo nero */
+    border: 1px solid #add8e6;
+}
+
+.extraordinary {
+    background-color: #ff000085;
+}
+
+/* Stili per 'holiday national' */
+.holiday-national {
+    background-color: #ffcc00; /* Giallo dorato */
+    color: #000000 !important; /* Testo nero */
+    border: 1px solid #ffd700;
+}
+
+/* Stili per 'holiday local' */
+.holiday-local {
+    background-color: #ffcc99; /* Arancione chiaro */
+    color: #804000; /* Testo marrone scuro */
+    border: 1px solid #cc8400;
+}
+
+/* Leggenda */
+/* Stili per 'holiday national' */
+.bg-ffcc00 {
+    background-color: #ffcc00; /* Giallo dorato */
+}
+
+/* Stili per 'holiday local' */
+.bg-ffcc99 {
+    background-color: #ffcc99; /* Arancione chiaro */
+}
+
+/* Stili per 'presence' */
+.bg-green {
+    background-color: #90ee90; /* Verde chiaro */
+}
+
+/* Stili per 'shift' */
+.bg-blue {
+    background-color: #add8e6; /* Blu chiaro */
+}
+
+/* Stili per testo in modalità chiara */
+.text-gray-800 {
+    color: #1a202c; /* Grigio scuro */
+}
+
+/* Stili per testo in modalità scura */
+.dark .text-gray-200 {
+    color: #edf2f7; /* Grigio chiaro */
 }

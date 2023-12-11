@@ -55,6 +55,10 @@ Route::middleware('auth')->group(function () {
     Route::get('reports/employee', fn () => view('livewire.report.employee'))->name('reports.employee');
     Route::get('reports/company', fn () => view('livewire.report.company'))->name('reports.company');
     Route::get('reports/worksite', fn () => view('livewire.report.worksite'))->name('reports.worksite');
+    /**
+     * Vista mensile di tutti i turni svolti del singolo dipendente
+     */
+    Route::get('reports/shift', 'App\Livewire\Report\EmployeePresencesMonthly')->name('reports.shift');
 
     /**
      * Shift
@@ -68,6 +72,11 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('presences', fn () => view('livewire.presence.index'))->name('presences.index');
     Route::get('absence', fn () => view('livewire.presence.absence'))->name('absence.index');
+
+    /**
+     * Holiday
+     */
+    Route::get('holidays', fn () => view('livewire.holiday.index'))->name('holidays.index');
 
 
 });

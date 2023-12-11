@@ -3,13 +3,11 @@
 namespace App\Livewire\Report;
 
 use WireUi\Traits\Actions;
-use App\Enums\UserRoleEnum;
+use App\Http\Services\UtilsServices;
 use App\Models\Company;
 use App\Models\Presence;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
 use Carbon\Carbon;
 
@@ -23,6 +21,7 @@ class CompanyDetails extends ModalComponent
 	
 	public $from_date = null;
 	public $to_date = null;
+	public ?int $worksite = null;
 
 	protected static array $maxWidths = [
         'sm' => 'sm:max-w-sm',
@@ -42,10 +41,11 @@ class CompanyDetails extends ModalComponent
 		return '3xl';
 	}
 
-	public function mount(Company $company, $from_date = null, $to_date = null)
+	public function mount(Company $company, $worksite = null, $from_date = null, $to_date = null)
     {
 		$this->company = $company;
 		$this->name = $company->name;
+		$this->worksite = $worksite;
 		$this->from_date = $from_date ? Carbon::parse($from_date) : null;
 		$this->to_date = $to_date ? Carbon::parse($to_date) : null;
 
@@ -56,6 +56,7 @@ class CompanyDetails extends ModalComponent
 			})
 			->when($this->from_date, fn($query) => $query->whereDate('date', '>=', $this->from_date))
 			->when($this->to_date, fn($query) => $query->whereDate('date', '<=', $this->to_date))
+			->when($this->worksite, fn($query) => $query->where('id_worksite', $this->worksite))
 		;
 
 		$this->presences = $query->get()->map(function ($presence) {
@@ -75,7 +76,8 @@ class CompanyDetails extends ModalComponent
 			'start' => $presence->time_entry_extraordinary ?: $presence->time_entry,
 			'end' => $presence->time_exit_extraordinary ?: $presence->time_exit,
 			'worked' => $worked,
-			'extraordinary' => $presence->time_entry_extraordinary ? 'straordinario' : 'normale'
+			'extraordinary' => $presence->time_entry_extraordinary ? 'straordinario' : 'normale',
+			'holiday' => UtilsServices::isHoliday($presence->worksite, $presence->date),
 		];
 	}
 

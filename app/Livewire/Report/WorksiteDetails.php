@@ -3,14 +3,11 @@
 namespace App\Livewire\Report;
 
 use WireUi\Traits\Actions;
-use App\Enums\UserRoleEnum;
-use App\Models\Company;
 use App\Models\Presence;
 use App\Models\Worksite;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use App\Http\Services\UtilsServices;
 use LivewireUI\Modal\ModalComponent;
 use Carbon\Carbon;
 
@@ -81,7 +78,8 @@ class WorksiteDetails extends ModalComponent
 			'start' => $presence->time_entry_extraordinary ?: $presence->time_entry,
 			'end' => $presence->time_exit_extraordinary ?: $presence->time_exit,
 			'worked' => $worked,
-			'extraordinary' => $presence->time_entry_extraordinary ? 'straordinario' : 'normale'
+			'extraordinary' => $presence->time_entry_extraordinary ? 'straordinario' : 'normale',
+			'holiday' => UtilsServices::isHoliday($presence->worksite, $presence->date),
 		];
 	}
 

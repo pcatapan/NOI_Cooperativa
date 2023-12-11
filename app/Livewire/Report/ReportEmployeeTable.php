@@ -30,6 +30,7 @@ final class ReportEmployeeTable extends PowerGridComponent
 
     public $from_date = null;
     public $to_date = null;
+    public ?int $worksite = null;
     public ?int $company = null;
     public ?int $employee = null;
 
@@ -57,17 +58,31 @@ final class ReportEmployeeTable extends PowerGridComponent
     {
         $this->from_date = $filters['from_date'] ? Carbon::parse($filters['from_date']) : null;
         $this->to_date = $filters['to_date'] ? Carbon::parse($filters['to_date']) : null;
+        $this->worksite = $filters['worksite'];
         $this->company = $filters['company'];
         $this->employee = $filters['employee'];
     }
 
     public function datasource(): Builder
     {
-        $query = Presence::query()
+        return Presence::query()
             ->leftjoin('employees', 'presences.id_employee', '=', 'employees.id')
             ->leftjoin('users', 'employees.id_user', '=', 'users.id')
             ->leftjoin('worksites', 'presences.id_worksite', '=', 'worksites.id')
             ->leftjoin('companies', 'worksites.id_company', '=', 'companies.id')
+            ->when($this->worksite, function ($query, $worksite) {
+                return $query->where('worksites.id', $worksite);
+            })
+            ->when($this->company, function ($query, $company) {
+                return $query->where('companies.id', $company);
+            })
+            ->when($this->employee, function ($query, $employee) {
+                return $query->where('employees.id', $employee);
+            })
+            ->when($this->from_date || $this->to_date, function ($query) {
+                return $query->where('presences.date', '>=', $this->from_date)
+                    ->where('presences.date', '<=', $this->to_date);
+            })
             ->select(
                 'presences.*',
                 'users.surname as user_surname',
@@ -78,27 +93,8 @@ final class ReportEmployeeTable extends PowerGridComponent
             ->addSelect(DB::raw("CONCAT(users.name, ' ', users.surname) as user_name_surname"))
             ->groupBy('presences.id_employee')
             ->where('absent', false)
-            ->orderBy('users.name', 'desc');
-
-        // Applica il filtro per la data iniziale se impostato
-        if (isset($this->from_date)) {
-            $query->whereDate('presences.date', '>=', $this->from_date);
-        }
-
-        // Applica il filtro per la data finale se impostato
-        if (isset($this->to_date)) {
-            $query->whereDate('presences.date', '<=', $this->to_date);
-        }
-
-        if (isset($this->company)) {
-            $query->where('companies.id', $this->company);
-        }
-
-        if (isset($this->employee)) {
-            $query->where('employees.id', $this->employee);
-        }
-
-        return $query;
+            ->orderBy('users.name', 'desc')
+        ;
     }
 
 
@@ -190,6 +186,7 @@ final class ReportEmployeeTable extends PowerGridComponent
 				->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
 				->openModal('report.employee-details', [
 					'employee'	    => $row->id_employee,
+                    'worksite'	    => $this->worksite,
                     'from_date'		=> $this->from_date,
                     'to_date'		=> $this->to_date,
                     'company'		=> $this->company,

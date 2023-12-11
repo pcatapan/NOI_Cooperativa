@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Shift;
 use App\Enums\UserRoleEnum;
 use App\Http\Controllers\WorksiteController;
+use App\Models\Worksite;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Carbon\Carbon;
@@ -41,7 +42,7 @@ class Employee extends Component
 				'title' => $shift->worksite->cod,
 				'start' => $startTime->toIso8601String(),
 				'end' => $endTime->toIso8601String(),
-				'className' => $shift->validated == 1 ? 'presence' : 'shift',
+				'className' => self::classEvent($shift),
 			];
 		}
 	}
@@ -49,5 +50,31 @@ class Employee extends Component
 	public function render()
 	{
 		return view('livewire.dashboard.employee');
+	}
+
+	static function classEvent($shift)
+	{
+		if ($shift->validated == 1) {
+			return 'presence';
+		}
+
+		$worksite = Worksite::find($shift->id_worksite);
+		$holidays = $worksite->holidays;
+
+		$shiftDateFormatMD = $shift->date->format('m-d');
+		$shiftDateFormatYMD = $shift->date->format('Y-m-d');
+
+		foreach ($holidays as $holiday) {
+			$holidayDateFormatMD = $holiday->date->format('m-d');
+			$holidayDateFormatYMD = $holiday->date->format('Y-m-d');
+
+			$isHolidayMatch = $holiday->is_recurring ? $shiftDateFormatMD == $holidayDateFormatMD : $shiftDateFormatYMD == $holidayDateFormatYMD;
+
+			if ($isHolidayMatch) {
+				return $holiday->is_national ? 'holiday-national' : 'holiday-local';
+			}
+		}
+
+		return 'shift';
 	}
 }

@@ -63,7 +63,7 @@ final class ReportWorksiteTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = Presence::query()
+        return Presence::query()
             ->leftjoin('employees', 'presences.id_employee', '=', 'employees.id')
             ->leftjoin('users', 'employees.id_user', '=', 'users.id')
             ->leftjoin('worksites', 'presences.id_worksite', '=', 'worksites.id')
@@ -76,39 +76,27 @@ final class ReportWorksiteTable extends PowerGridComponent
                 DB::raw('SUM(minutes_worked) as total_hours_worked'),
                 DB::raw('SUM(minutes_extraordinary) as total_hours_extraordinary')
             )
+            ->when($this->company, function ($query, $company) {
+                return $query->where('companies.id', $company);
+            })
+            ->when($this->from_date || $this->to_date, function ($query) {
+                return $query->where('presences.date', '>=', $this->from_date)
+                    ->where('presences.date', '<=', $this->to_date);
+            })
+            ->when(Auth::user()->role == UserRoleEnum::RESPONSIBLE->value, function ($query) {
+                return $query->where('worksites.id_responsable', Auth::user()->employee->id);
+            })
             ->groupBy('presences.id_worksite')
             ->where('absent', false)
-            ->orderBy('users.name', 'desc');
-
-        // Applica il filtro per la data iniziale se impostato
-        if (isset($this->from_date)) {
-            $query->whereDate('presences.date', '>=', $this->from_date);
-        }
-
-        // Applica il filtro per la data finale se impostato
-        if (isset($this->to_date)) {
-            $query->whereDate('presences.date', '<=', $this->to_date);
-        }
-
-        if (isset($this->company)) {
-            $query->where('companies.id', $this->company);
-        }
-
-        // Se l'utente è un responsabile, mostra solo i cantieri di cui è responsabile
-        if (Auth::user()->role == UserRoleEnum::RESPONSIBLE->value) {
-            $query->where('worksites.id_responsable', Auth::user()->employee->id);
-        }
-
-        return $query;
+            ->orderBy('users.name', 'desc')
+        ;
     }
 
 
     public function relationSearch(): array
     {
         return [
-            'worksite' => [
-                'name',
-            ],
+            //
         ];
     }
 

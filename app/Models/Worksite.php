@@ -47,4 +47,9 @@ class Worksite extends Model
     {
         return $this->hasMany(Shift::class, 'id_worksite');
     }
+
+    public function holidays()
+    {
+        return $this->belongsToMany(Holiday::class, 'worksite_holiday', 'worksite_id', 'holiday_id');
+    }
 }
