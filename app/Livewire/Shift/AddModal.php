@@ -109,7 +109,9 @@ class AddModal extends ModalComponent
 		if ($worksite && (($newWorksiteHoursWorked > $worksite->total_hours) || ($newWorksiteHoursWorked > $worksite->total_hours_extraordinary && $this->isExtraordinary))) {
 			session()->flash('error', 'Le ore lavorative superano il limite consentito per questo cantiere.');
 			
-			return [];
+			return [
+				'employee' => 'required',
+			];
 		}
 
 		return $rules;
