@@ -95,7 +95,8 @@ final class CompanyTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::action(__('general.action')),
+            Column::action(__('general.action'))
+                ->visibleInExport(false),
 
             Column::make(__('company.name'), 'name')
                 ->sortable()

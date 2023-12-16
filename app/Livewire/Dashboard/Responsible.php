@@ -29,6 +29,7 @@ class Responsible extends Component
 	public array $tableShifts;
 	public ?int $id = null;
 	public ?int $userEmployee = null;
+	public ?array $worksitesResponsabile = null;
 
 	public bool $createShiftModal = false;
 
@@ -50,14 +51,16 @@ class Responsible extends Component
 		$this->tableShifts = $this->createTabelShifts();
 		$this->id = $user->id;
 		$this->userEmployee = $user->getEmployeeId();
+		$this->worksitesResponsabile = $user->employee->worksitesAsResponsible->pluck('id')->toArray();
 
 		$this->shiftValidated = Models\Shift::where('validated', 1)
-			->where('id_employee', $this->userEmployee)
+			->where('date', '<',Carbon::now()->startOfMonth())
+			->whereIn('id_worksite', $this->worksitesResponsabile)
 			->count()
 		;
 		$this->shiftNotValidated = Models\Shift::where('validated', 0)
 			->where('date', '<', Carbon::now())
-			->where('id_employee', $this->userEmployee)
+			->whereIn('id_worksite', $this->worksitesResponsabile)
 			->count()
 		;
 

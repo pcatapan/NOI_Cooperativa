@@ -46,7 +46,9 @@
 					placeholder="{{ \Str::ucfirst(__('shift.date_placeholder')) }}"
 					display-format="YYYY-MM-DD"
 					wire:model.defer="date"
+					without-timezone="true"
 					without-time="true"
+					without-tips="true"
 					required
 				/>
 			</div>

@@ -87,6 +87,9 @@ final class HolidayTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::action(__('general.action'))
+                ->visibleInExport(false),
+
             Column::make(__('holiday.name'), 'name'),
 
             Column::make(__('holiday.date'), 'date_formatted', 'date'),
@@ -96,8 +99,6 @@ final class HolidayTable extends PowerGridComponent
 
             Column::make(__('holiday.is_national'), 'is_national')
                 ->toggleable(),
-
-            Column::action(__('general.action'))
         ];
     }
 

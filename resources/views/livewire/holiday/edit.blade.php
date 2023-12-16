@@ -30,7 +30,7 @@
 			@foreach($worksites as $key => $worksite)
 				<div class="flex items-center">
 					<input type="checkbox" wire:model.defer="worksitesSelected" value="{{ $worksite->id }}" id="worksite-{{ $worksite->id }}" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-					<label for="worksite-{{ $worksite->id }}" class="ml-3 text-sm font-medium text-white">
+					<label for="worksite-{{ $worksite->id }}" class="ml-3 text-sm font-medium dark:text-white">
 						{{ $worksite->cod }}
 					</label>
 				</div>

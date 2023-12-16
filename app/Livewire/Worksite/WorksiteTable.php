@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use App\Enums\UserRoleEnum;
 use App\Models\Company;
+use App\Models\Employee;
 use Illuminate\Support\Str;
 
 final class WorksiteTable extends PowerGridComponent
@@ -118,7 +119,8 @@ final class WorksiteTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::action(__('general.action')),
+            Column::action(__('general.action'))
+                ->visibleInExport(false),
 
             Column::make(__('worksite.cod'), 'cod')
                 ->sortable()

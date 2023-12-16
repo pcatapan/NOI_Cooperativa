@@ -94,7 +94,8 @@ final class UserTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::action(__('general.action')),
+            Column::action(__('general.action'))
+                ->visibleInExport(false),
 
             Column::make(Str::ucfirst(__('user.name')), 'name')
                 ->sortable()

@@ -81,6 +81,11 @@ final class ShiftFutureTable extends PowerGridComponent
         $this->dispatch('openModal', 'shift.duplicate', [
             'shifts'                 => $this->checkboxValues,
         ]);
+
+		// Svuota l'array delle checkbox selezionate
+		$this->checkboxValues = [];
+		// Aggiorna la vista per riflettere il cambiamento
+		$this->emit('refreshLivewireDatatable');
     }
 
 	public function datasource(): Builder
@@ -138,7 +143,8 @@ final class ShiftFutureTable extends PowerGridComponent
 	{
 		$canEdit = Auth::user()->role === UserRoleEnum::RESPONSIBLE->value;
 		return [
-			Column::action(__('general.action')),
+			Column::action(__('general.action'))
+                ->visibleInExport(false),
 
 			Column::make(__('general.id'), 'id')
 				->hidden(),

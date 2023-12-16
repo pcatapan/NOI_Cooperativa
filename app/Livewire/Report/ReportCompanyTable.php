@@ -4,6 +4,11 @@ namespace App\Livewire\Report;
 
 use App\Models\Presence;
 use Carbon\Carbon;
+use Illuminate\Support as Support;
+use PowerComponents\LivewirePowerGrid\DataSource\Builder as BuilderExport;
+use PowerComponents\LivewirePowerGrid\ProcessDataSource;
+use Illuminate\Database\Eloquent as Eloquent;
+use App\Http\Services\UtilsServices;
 use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -19,6 +24,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
+use App\Models\Company;
 use Illuminate\Support\Str;
 
 final class ReportCompanyTable extends PowerGridComponent
@@ -81,9 +87,11 @@ final class ReportCompanyTable extends PowerGridComponent
             ->when($this->company, function ($query, $company) {
                 return $query->where('companies.id', $company);
             })
-            ->when($this->from_date || $this->to_date, function ($query) {
-                return $query->whereDate('presences.date', '>=', $this->from_date)
-                    ->whereDate('presences.date', '<=', $this->to_date);
+            ->when($this->from_date, function ($query) {
+                return $query->where('presences.date', '>=', $this->from_date);
+            })
+            ->when($this->to_date, function ($query) {
+                return $query->where('presences.date', '<=', $this->to_date);
             })
             ->groupBy('companies.id')
             ->where('absent', false)
@@ -129,25 +137,32 @@ final class ReportCompanyTable extends PowerGridComponent
                 return $hoursWorked . ' ore';
             })
             ->addColumn('action')
+            ->addColumn('additional_data')
         ;
     }
 
     public function columns(): array
     {
         return [
-            Column::action(__('general.action')),
+            Column::action(__('general.action'))
+                ->visibleInExport(false),
+
 
             Column::make('ID', 'company_id')
                 ->hidden(),
-            
+                
             Column::make(__('report.company'), 'company_name')
                 ->sortable(),
-
+                
             Column::make(__('report.hours_worked'), 'total_hours_worked')
                 ->sortable(),
-
+                
             Column::make(__('report.hours_extraordinary'), 'total_hours_extraordinary')
                 ->sortable(),
+            
+            Column::make(__('report.details'), 'additional_data')
+                ->hidden()
+                ->visibleInExport(true),
         ];
     }
 
@@ -174,15 +189,75 @@ final class ReportCompanyTable extends PowerGridComponent
         ];
     }
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
+    public function prepareToExport(bool $selected = false) : Eloquent\Collection|Support\Collection {
+        $processDataSource = tap(ProcessDataSource::fillData($this), fn ($datasource) => $datasource->get());
+
+        $inClause = $processDataSource->component->filtered;
+
+        if ($selected && filled($processDataSource->component->checkboxValues)) {
+            $inClause = $processDataSource->component->checkboxValues;
+        }
+
+        if ($processDataSource->isCollection) {
+            if ($inClause) {
+                $results = $processDataSource->get()->whereIn($this->primaryKey, $inClause);
+
+                return $processDataSource->transform($results);
+            }
+
+            return $processDataSource->transform($processDataSource->resolveCollection());
+        }
+
+        /** @phpstan-ignore-next-line */
+        $currentTable = $processDataSource->component->currentTable;
+
+        $sortField = Support\Str::of($processDataSource->component->sortField)->contains('.') ? $processDataSource->component->sortField : $currentTable . '.' . $processDataSource->component->sortField;
+
+        $results = $processDataSource->prepareDataSource()
+            ->where(
+                fn ($query) => BuilderExport::make($query, $this)
+                    ->filterContains()
+                    ->filter()
+            )
+            ->when($inClause, function ($query, $inClause) use ($processDataSource) {
+                return $query->whereIn($processDataSource->component->primaryKey, $inClause);
+            })
+            ->orderBy($sortField, $processDataSource->component->sortDirection)
+            ->get()
+        ;
+
+        foreach ($results as $result) {
+            $result->additional_data = $this->getAdditionalData($result->company_id);
+        }
+
+        return $processDataSource->transform($results);
     }
-    */
+
+    private function getAdditionalData($companyId)
+    {
+        $details = [];
+
+        $comapny = Company::find($companyId);
+		$query = UtilsServices::getDetailsReportCompany($comapny, $this->worksite, $this->from_date, $this->to_date);
+        $query = $query->get();
+
+        $details = $query->map(function ($item) {
+
+            $interval = CarbonInterval::minutes($item->minutes_worked ?: $item->minutes_extraordinary);
+		    $worked = $interval->cascade()->forHumans();
+
+            return [
+                'worksite' => $item->worksite->cod,
+                'employee' => $item->employee->full_name,
+                'date' => $item->date->format('d/m/Y'),
+                'start' => $item->time_entry_extraordinary ?: $item->time_entry,
+                'end' => $item->time_exit_extraordinary ?: $item->time_exit,
+                'worked' => $worked,
+                'extraordinary' => $item->time_entry_extraordinary ? 'straordinario' : 'normale',
+                'holiday' => UtilsServices::isHoliday($item->worksite, $item->date),
+            ];
+        });
+
+        return $details;
+    }
 }

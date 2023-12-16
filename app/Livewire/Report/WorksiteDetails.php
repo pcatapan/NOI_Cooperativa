@@ -49,17 +49,7 @@ class WorksiteDetails extends ModalComponent
 		$this->to_date = $to_date ? Carbon::parse($to_date) : null;
 		$this->company = $company;
 
-		$query = Presence::query()
-			->where('absent', false)
-			->where('id_worksite', $worksite->id)
-			->when($company, function ($q) use ($company) {
-				$q->whereHas('worksite', function ($query) use ($company) {
-					$query->where('id_company', $company);
-				});
-			})
-			->when($this->from_date, fn($q) => $q->whereDate('date', '>=', $this->from_date))
-			->when($this->to_date, fn($q) => $q->whereDate('date', '<=', $this->to_date))
-		;
+		$query = UtilsServices::getDetailsReportWorksite($worksite, $from_date, $to_date, $company);
 
 		$this->presences = $query->get()->map(function ($presence) {
 			return $this->transformPresence($presence);

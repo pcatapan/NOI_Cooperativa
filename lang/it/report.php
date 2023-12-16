@@ -19,4 +19,5 @@ return [
 	'diff' => 'Differenza',
 	'over_limit' => 'Oltre il limite',
 	'empty' => 'Nessun dato da visualizzare',
+	'details' => 'Dettagli',
 ];

@@ -50,14 +50,7 @@ class EmployeeDetails extends ModalComponent
 		$this->to_date = $to_date ? Carbon::parse($to_date) : null;
 		$this->company = $company;
 
-		$query = $this->employee->presences()
-			->where('absent', false)
-			->with('worksite')
-			->when($this->from_date, fn($query) => $query->whereDate('date', '>=', $this->from_date))
-			->when($this->to_date, fn($query) => $query->whereDate('date', '<=', $this->to_date))
-			->when($this->company, fn($query) => $query->whereHas('worksite', fn($q) => $q->where('id_company', $this->company)))
-			->when($this->worksite, fn($query) => $query->where('id_worksite', $this->worksite))
-		;
+		$query = UtilsServices::getDetailsReportEmployee($employee, $worksite, $from_date, $to_date, $company);
 
 		$this->presences = $query->get()->map(function ($presence) {
 			return $this->transformPresence($presence);

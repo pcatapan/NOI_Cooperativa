@@ -5,6 +5,11 @@ namespace App\Livewire\Report;
 use App\Models\Presence;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Illuminate\Support as Support;
+use PowerComponents\LivewirePowerGrid\DataSource\Builder as BuilderExport;
+use PowerComponents\LivewirePowerGrid\ProcessDataSource;
+use Illuminate\Database\Eloquent as Eloquent;
+use App\Http\Services\UtilsServices;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -19,6 +24,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Enums\UserRoleEnum;
+use App\Models\Employee;
 use Illuminate\Support\Str;
 
 final class ReportEmployeeTable extends PowerGridComponent
@@ -79,9 +85,11 @@ final class ReportEmployeeTable extends PowerGridComponent
             ->when($this->employee, function ($query, $employee) {
                 return $query->where('employees.id', $employee);
             })
-            ->when($this->from_date || $this->to_date, function ($query) {
-                return $query->where('presences.date', '>=', $this->from_date)
-                    ->where('presences.date', '<=', $this->to_date);
+            ->when($this->from_date, function ($query) {
+                return $query->where('presences.date', '>=', $this->from_date);
+            })
+            ->when($this->to_date, function ($query) {
+                return $query->where('presences.date', '<=', $this->to_date);
             })
             ->select(
                 'presences.*',
@@ -146,7 +154,8 @@ final class ReportEmployeeTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::action(__('general.action')),
+            Column::action(__('general.action'))
+                ->visibleInExport(false),
 
             Column::make('ID', 'id_employee')
                 ->hidden(),
@@ -167,6 +176,10 @@ final class ReportEmployeeTable extends PowerGridComponent
 
             Column::make('Ore Straordinarie', 'total_hours_extraordinary')
                 ->sortable(),
+
+            Column::make(__('report.details'), 'additional_data')
+                ->hidden()
+                ->visibleInExport(true),
         ];
     }
 
@@ -194,15 +207,74 @@ final class ReportEmployeeTable extends PowerGridComponent
         ];
     }
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
+    public function prepareToExport(bool $selected = false) : Eloquent\Collection|Support\Collection {
+        $processDataSource = tap(ProcessDataSource::fillData($this), fn ($datasource) => $datasource->get());
+
+        $inClause = $processDataSource->component->filtered;
+
+        if ($selected && filled($processDataSource->component->checkboxValues)) {
+            $inClause = $processDataSource->component->checkboxValues;
+        }
+
+        if ($processDataSource->isCollection) {
+            if ($inClause) {
+                $results = $processDataSource->get()->whereIn($this->primaryKey, $inClause);
+
+                return $processDataSource->transform($results);
+            }
+
+            return $processDataSource->transform($processDataSource->resolveCollection());
+        }
+
+        /** @phpstan-ignore-next-line */
+        $currentTable = $processDataSource->component->currentTable;
+
+        $sortField = Support\Str::of($processDataSource->component->sortField)->contains('.') ? $processDataSource->component->sortField : $currentTable . '.' . $processDataSource->component->sortField;
+
+        $results = $processDataSource->prepareDataSource()
+            ->where(
+                fn ($query) => BuilderExport::make($query, $this)
+                    ->filterContains()
+                    ->filter()
+            )
+            ->when($inClause, function ($query, $inClause) use ($processDataSource) {
+                return $query->whereIn($processDataSource->component->primaryKey, $inClause);
+            })
+            ->orderBy($sortField, $processDataSource->component->sortDirection)
+            ->get()
+        ;
+
+        foreach ($results as $result) {
+            $result->additional_data = $this->getAdditionalData($result->id_employee);
+        }
+
+        return $processDataSource->transform($results);
     }
-    */
+
+    private function getAdditionalData($employeeId)
+    {
+        $details = [];
+
+        $employee = Employee::find($employeeId);
+		$query = UtilsServices::getDetailsReportEmployee($employee, $this->worksite, $this->from_date, $this->to_date, $this->company);
+        $query = $query->get();
+
+        $details = $query->map(function ($item) {
+
+            $interval = CarbonInterval::minutes($item->minutes_worked ?: $item->minutes_extraordinary);
+		    $worked = $interval->cascade()->forHumans();
+
+            return [
+                'worksite' => $item->worksite->cod,
+                'date' => $item->date->format('d/m/Y'),
+                'start' => $item->time_entry_extraordinary ?: $item->time_entry,
+                'end' => $item->time_exit_extraordinary ?: $item->time_exit,
+                'worked' => $worked,
+                'extraordinary' => $item->time_entry_extraordinary ? 'straordinario' : 'normale',
+                'holiday' => UtilsServices::isHoliday($item->worksite, $item->date),
+            ];
+        });
+
+        return $details;
+    }
 }

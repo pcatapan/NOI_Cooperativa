@@ -76,7 +76,6 @@ class Employee extends Model
         return $this->user->delete();
     }
 
-
     /*
      * Accessors
      */

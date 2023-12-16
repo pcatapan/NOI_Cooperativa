@@ -101,7 +101,8 @@ final class ShiftTodayTable extends PowerGridComponent
 	{
 		$canEdit = Auth::user()->role === UserRoleEnum::RESPONSIBLE->value;
 		return [
-			Column::action(__('general.action')),
+			Column::action(__('general.action'))
+                ->visibleInExport(false),
 
 			Column::make('Cognome', 'user_surname', 'users.surname')
                 ->hidden()
