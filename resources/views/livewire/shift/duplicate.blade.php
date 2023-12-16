@@ -4,9 +4,7 @@
 		<button wire:click="cancel" class="modal-close cursor-pointer top-2 right-2 text-gray-700 dark:text-gray-300 text-xl" id="closeModal">&times;</button>
 	</div>
 	<div class="gap-2 flex flex-col">
-
-		{{ implode(', ', $shiftToDuplicate) }}
-
+	
 		{{-- Turno --}
 		{{-- Dal, al --}}
 		<div class="w-full flex flex-col sm:flex-row sm:gap-9 gap-2">

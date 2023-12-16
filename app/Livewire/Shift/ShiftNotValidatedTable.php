@@ -82,6 +82,10 @@ final class ShiftNotValidatedTable extends PowerGridComponent
         $this->dispatch('openModal', 'shift.duplicate', [
             'shifts'                 => $this->checkboxValues,
         ]);
+
+		$this->dispatch('pgBulkActions::clear', $this->tableName);
+
+		$this->checkboxValues = [];
     }
 
 	public function datasource(): Builder

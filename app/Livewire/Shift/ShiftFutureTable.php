@@ -82,10 +82,9 @@ final class ShiftFutureTable extends PowerGridComponent
             'shifts'                 => $this->checkboxValues,
         ]);
 
-		// Svuota l'array delle checkbox selezionate
+		$this->dispatch('pgBulkActions::clear', $this->tableName);
+
 		$this->checkboxValues = [];
-		// Aggiorna la vista per riflettere il cambiamento
-		$this->emit('refreshLivewireDatatable');
     }
 
 	public function datasource(): Builder
